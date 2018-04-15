@@ -10,11 +10,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link type="text/css" rel="stylesheet" href="../css/myCss.css"/>
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="../js/materialize.min.js"></script>
+<script>
+$(document).ready(function(){
+	//NavBar
+    $('.sidenav').sidenav();
+	//Floating button +
+	// $('.fixed-action-btn').floatingActionButton();
+	//Date picker
+	$('.datepicker').datepicker();
+	//Collapsible
+	$('.collapsible').collapsible();
+});	
+	
+</script>
 <title>Profile</title>
 </head>
 
 <body>
+<nav>
+    <div class="nav-wrapper">
+      <a href="#!" class="center brand-logo">Profile</a>
+      <a data-rel="back" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+      <ul class="left hide-on-med-and-down">
+        <li><a data-rel="back"><i class="material-icons left">arrow_back</i></a></li>
+      </ul>
+    </div>
+  </nav>
+ <h1 align="center">Your profile</h1> 
+ <br />
+<ul class="collapsible">
+	<li>
+      <div class="collapsible-header"><i class="material-icons">account_box</i>Driver details</div>
+      <div class="collapsible-body">	
+		<div class="row">
+			<form class="col s12">
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input placeholder="Placeholder" id="txtName" type="text" class="validate">
+				  <label for="txtName"> Name</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtBirthDate" type="text" class="datepicker">
+				  <label for="txtBirthDate">Birthdate</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="permitNo" type="number" class="validate" max="9" min="9">
+				  <label for="permitNo">Licence Number</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtPermitDate" type="text" class="datepicker">
+				  <label for="txtPermitDate">Permit Date</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="telNo" type="tel" class="validate">
+				  <label for="telNo">Phone Number</label>
+				</div>
+				</div>
+				</form>
+			</div>
+		</div>
+	</li>
+</ul>
+<ul class="collapsible">
+	<li>
+      <div class="collapsible-header"><i class="material-icons">people</i>Supervisor details</div>
+      <div class="collapsible-body">	
+		<div class="row">
+			<form class="col s12">
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input placeholder="Placeholder" id="first_name" type="text" class="validate">
+				  <label for="first_name">First Name</label>
+				</div>
+				<div class="input-field col s12">
+				  <input id="last_name" type="text" class="validate">
+				  <label for="last_name">Last Name</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="licenceNo" type="number" class="validate" max="9" min="9">
+				  <label for="licenceNo">Licence Number</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="phoneNo" type="tel" class="validate">
+				  <label for="phoneNo">Phone Number</label>
+				</div>
+				</div>
+				</form>
+			</div>
+		</div>
+	</li>
+</ul> 
+  
+  
+<script type="text/javascript" src="js/materialize.min.js"></script>  
 </body>
 </html>
