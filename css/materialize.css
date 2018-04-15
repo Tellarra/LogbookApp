@@ -3574,6 +3574,8 @@ table span.badge {
   margin-left: auto;
   left: auto;
   right: auto;
+  padding-right: 5%; 
+  padding-left: 5%;
 }
 
 .row .col.offset-s1 {
