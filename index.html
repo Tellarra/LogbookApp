@@ -11,15 +11,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link type="text/css" rel="stylesheet" href="css/mainStylesheet.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
+<script type="text/javascript" src="js/materialize.min.js"></script>
 
 <script>
 $(document).ready(function(){
 	//NavBar
     $('.sidenav').sidenav();
 	//Floating button +
-	 $('.fixed-action-btn').floatingActionButton();
-	});
+	$('.fixed-action-btn').floatingActionButton();
+	//Tooltip
+	$('.tooltipped').tooltip();
+});
 </script>
 </head>
 <body> 
@@ -31,22 +33,24 @@ $(document).ready(function(){
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
         <li><a href="html/profile.html">Profile</a></li>
-        <li><a href="html/drivingLog.html">Driving log</a></li>
+        <li><a href="html/drivingLog.html">Log Book</a></li>
       </ul>
     </div>
   </nav>
   <ul class="sidenav" id="mobile-demo">
     <li><a href="html/profile.html">Profile</a></li>
-    <li><a href="html/drivingLog.html">Driving Log</a></li>
+    <li><a href="html/drivingLog.html">Log Book</a></li>
   </ul>
 <!--<div data-role="content">-->
-<div data-role="main" class="ui-content">	
-  <div class="col s12 m7">
+<div class="col s12 m7 cards">
     <div class="card horizontal">
       <div class="card-stacked">
         <div class="card-content">
-         <span class="card-title">Session on the [date]</span>
-          <p>[session details]</p>
+         <span class="card-title">Session</span>
+			<div class="card_icon"><i class="material-icons left ">event</i>15/04/2018 Saturday</div>
+			<div class="card_icon"><i class="material-icons left">people</i>Supervisor: Alan Parish</div>
+			<div class="card_icon"><i class="material-icons left">access_time</i>2 hours</div>
+      	 	<div class="card_icon"><i class="material-icons left">brightness_4</i>Day/Night</div>
         </div>
       </div>
    </div>
@@ -64,12 +68,15 @@ $(document).ready(function(){
       </div>
    </div>
 </div>	
-  <div class="col s12 m7">
+<div class="col s12 m7 cards">
     <div class="card horizontal">
       <div class="card-stacked">
         <div class="card-content">
-         <span class="card-title">Session on the [date]</span>
-          <p>[session details]</p>
+         <span class="card-title">Session</span>
+			<div class="card_icon"><i class="material-icons left ">event</i>13/04/2018 Saturday</div>
+			<div class="card_icon"><i class="material-icons left">people</i>Supervisor: Melanie Crook</div>
+			<div class="card_icon"><i class="material-icons left">access_time</i>30 minutes</div>
+      	 	<div class="card_icon"><i class="material-icons left">brightness_3</i>Night</div>
         </div>
       </div>
    </div>
@@ -79,10 +86,8 @@ $(document).ready(function(){
     <i class=" large material-icons">mode_edit</i>
   </a>
   <ul>
-    <li><a class="btn-floating red"><i class="material-icons">insert_chart</i></a></li>
-    <li><a class="btn-floating yellow darken-1"><i class="material-icons">format_quote</i></a></li>
-    <li><a class="btn-floating green"><i class="material-icons">publish</i></a></li>
-    <li><a class="btn-floating blue"><i class="material-icons">attach_file</i></a></li>
+    <li><a class="btn-floating green btn tooltipped" data-position="left" data-tooltip="Filter"><i class="material-icons">filter_list</i></a></li>
+    <li><a class="btn-floating blue btn tooltipped" data-position="left" data-tooltip="Add" href="html/drivingLog.html"><i class="material-icons">add</i></a></li>
   </ul>
 </div>	
   <footer class="page-footer">
@@ -91,7 +96,5 @@ $(document).ready(function(){
    </div>
  </footer>
 </div>
-</div>
-<script type="text/javascript" src="js/materialize.min.js"></script>
 </body>
 </html>
