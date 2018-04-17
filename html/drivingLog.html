@@ -12,7 +12,18 @@
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="../js/materialize.min.js"></script>
-
+<script>
+$(document).ready(function(){
+	//NavBar
+    $('.sidenav').sidenav();
+	//Floating button +
+	// $('.fixed-action-btn').floatingActionButton();
+	//Date picker
+	$('.datepicker').datepicker();
+	//Time Picker
+	$('.timepicker').timepicker();
+});		
+</script>
 <title>LogBook</title>
 </head>
 
@@ -27,6 +38,41 @@
       </ul>
     </div>
   </nav>
-</div>
+ <h1 align="center">Enter your session's information</h1>
+<div class="row">
+	<form class="col s12">
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtDate" type="text" class="datepicker">
+				  <label for="txtDate">Date</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtStartTime" type="text" class="timepicker">
+				  <label for="txtStartTime">Start time</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtFinishTime" type="text" class="timepicker">
+				  <label for="txtFinishTime">Finish time</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtPermitDate" type="text" class="datepicker">
+				  <label for="txtPermitDate">Permit Date</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="telNo" type="tel" class="validate">
+				  <label for="telNo">Phone Number</label>
+				</div>
+				</div>
+			</form>
+		</div>
+	</div>
 </body>
 </html>
