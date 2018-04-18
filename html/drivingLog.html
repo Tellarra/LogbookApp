@@ -29,6 +29,9 @@ $(document).ready(function(){
 	$('select').formSelect();
 	//Signature
 	$("#signature").jSignature();
+	$("#clearButton").on("click", function() {
+		$("#signature").jSignature("clear");
+	});
 
 });		
 </script>
@@ -40,9 +43,9 @@ $(document).ready(function(){
 <nav>
     <div class="nav-wrapper">
       <a href="#!" class="center brand-logo">Log Book</a>
-      <a data-rel="back" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
       <ul class="left hide-on-med-and-down">
-        <li><a data-rel="back"><i class="material-icons left">arrow_back</i></a></li>
+        <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
       </ul>
     </div>
   </nav>
@@ -51,62 +54,73 @@ $(document).ready(function(){
 	<form class="col s12">
 		  <div class="row">
 				<div class="input-field col s12">
+			 	  <i class="material-icons prefix">card_membership</i>
 				  <input id="txtLicenseNo" type="text" class="validate">
-				  <label for="txtLicenseNo">License Number</label>
+				  <label for="txtLicenseNo" class="teal-text text-lighten-2">License Number</label>
+				  <span class="helper-text" data-error="Your license Number must contain 9 digits" data-success="Correct"></span>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			  		<i class="material-icons prefix">directions_car</i>
 				  <input id="txtRegNo" type="text" class="validate">
-				  <label for="txtRegNo">Car Registration Number</label>
+				  <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			  		<i class="material-icons prefix">event</i>
 				  <input id="txtDate" type="text" class="datepicker">
-				  <label for="txtDate">Date</label>
+				  <label for="txtDate" class="teal-text text-lighten-2">Date</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			 		<i class="material-icons prefix">access_time</i>
 				  <input id="txtStartTime" type="text" class="timepicker">
-				  <label for="txtStartTime">Start time</label>
+				  <label for="txtStartTime" class="teal-text text-lighten-2">Start time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			  		<i class="material-icons prefix">av_timer</i>
 				  <input id="txtFinishTime" type="text" class="timepicker">
-				  <label for="txtFinishTime">Finish time</label>
+				  <label for="txtFinishTime" class="teal-text text-lighten-2">Finish time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			  		<img src="../images/icons8-png/icons8-au-volant-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 				  <input id="txtTime" type="text" class="validate">
-				  <label for="txtTime">Driving Time</label>
+				  <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			  		<img src="../images/icons8-png/icons8-odomètre-50.png" class="prefix" style="width: 24px; height: 24px;">
 				  <input id="txtOdom" type="text" class="validate">
-				  <label for="txtOdom">Odometer Before Driving</label>
+				  <label for="txtOdom" class="teal-text text-lighten-2">Odometer Before Driving</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
+			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 				  <input id="txtOdomAfter" type="text" class="validate">
-				  <label for="txtOdomAfter">Odometer After Driving</label>
+				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
 				</div>
 			  </div>
 			  <div class="input-field col s12 m6">
+   				<i class="material-icons prefix">wb_sunny</i>
     			<select class="icons">
       				<option value="" disabled selected>Choose your option</option>
       				<option value="Day">Day</option>
       				<option value="Night">Night</option>
       				<option value="Day and Night">Day and Night</option>
    	 			</select>
-    		<label>Light</label>
+    		<label class="teal-text text-lighten-2">Light</label>
   			</div>
   			<div class="input-field col s12">
+  			<img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 				<select multiple>
 				  <option value="" disabled selected>Choose your options</option>
 				  <optgroup label="Traffic">
@@ -128,11 +142,24 @@ $(document).ready(function(){
 					  <option value="Gravel">Gravel</option>
 				  </optgroup>
 				</select>
-				<label>Materialize Multiple Select</label>
+				<label class="teal-text text-lighten-2">Conditions</label>
+			  </div>
+			  <div class="row">
+				  <div class="input-field col s12">
+					<p class="teal-text text-lighten-2">Signature</p>
+					<div id="signature"></div>
+				  </div>
 			  </div>
 			  <div class="input-field col s12">
-			  	<div id="signature"></div>
+			  	<p>
+			  		<button class="waves-effect waves-light btn" type="button" id="clearButton">Clear</button>
+			  	</p>
 			  </div>
+			  <div class="input-field col s12">
+			  	<button class="btn waves-effect waves-light right red accent-4" type="submit" name="action">Submit
+    				<i class="material-icons right">send</i>
+  				</button>
+  			  </div>
 			</form>
 		</div>
 	</div>
