@@ -19,3 +19,10 @@ main {
 	margin-bottom: 5px;
 }
 
+#signature {
+	background-color: #939393;
+	width: 50%;
+	height: 30%;
+	color: aliceblue;
+}
+

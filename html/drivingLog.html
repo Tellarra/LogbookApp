@@ -12,6 +12,9 @@
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="../js/materialize.min.js"></script>
+
+<!-- Signature plugin -->
+<script src="../Plugins/js/jSignature.min.js"></script>
 <script>
 $(document).ready(function(){
 	//NavBar
@@ -22,6 +25,11 @@ $(document).ready(function(){
 	$('.datepicker').datepicker();
 	//Time Picker
 	$('.timepicker').timepicker();
+	//Select Button
+	$('select').formSelect();
+	//Signature
+	$("#signature").jSignature();
+
 });		
 </script>
 <title>LogBook</title>
@@ -41,6 +49,18 @@ $(document).ready(function(){
  <h1 align="center">Enter your session's information</h1>
 <div class="row">
 	<form class="col s12">
+		  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtLicenseNo" type="text" class="validate">
+				  <label for="txtLicenseNo">License Number</label>
+				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtRegNo" type="text" class="validate">
+				  <label for="txtRegNo">Car Registration Number</label>
+				</div>
+			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 				  <input id="txtDate" type="text" class="datepicker">
@@ -61,16 +81,58 @@ $(document).ready(function(){
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
-				  <input id="txtPermitDate" type="text" class="datepicker">
-				  <label for="txtPermitDate">Permit Date</label>
+				  <input id="txtTime" type="text" class="validate">
+				  <label for="txtTime">Driving Time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
-				  <input id="telNo" type="tel" class="validate">
-				  <label for="telNo">Phone Number</label>
+				  <input id="txtOdom" type="text" class="validate">
+				  <label for="txtOdom">Odometer Before Driving</label>
 				</div>
+			  </div>
+			  <div class="row">
+				<div class="input-field col s12">
+				  <input id="txtOdomAfter" type="text" class="validate">
+				  <label for="txtOdomAfter">Odometer After Driving</label>
 				</div>
+			  </div>
+			  <div class="input-field col s12 m6">
+    			<select class="icons">
+      				<option value="" disabled selected>Choose your option</option>
+      				<option value="Day">Day</option>
+      				<option value="Night">Night</option>
+      				<option value="Day and Night">Day and Night</option>
+   	 			</select>
+    		<label>Light</label>
+  			</div>
+  			<div class="input-field col s12">
+				<select multiple>
+				  <option value="" disabled selected>Choose your options</option>
+				  <optgroup label="Traffic">
+					  <option value="Light">Light</option>
+					  <option value="Moderate">Moderate</option>
+					  <option value="Heavy">Heavy</option>
+				  </optgroup>
+				  <optgroup label="Weather">
+					  <option value="Dry">Dry</option>
+					  <option value="Wet">Wet</option>
+				  </optgroup>
+				  <optgroup label="Road">
+					  <option value="Local Street">Local Street</option>
+					  <option value="Main Road">Main Road</option>
+					  <option value="Inner City">Inner City</option>
+					  <option value="Freeway">Freeway</option>
+					  <option value="Rural Hwy">Rural Hwy</option>
+					  <option value="Rural Other">Rural Other</option>
+					  <option value="Gravel">Gravel</option>
+				  </optgroup>
+				</select>
+				<label>Materialize Multiple Select</label>
+			  </div>
+			  <div class="input-field col s12">
+			  	<div id="signature"></div>
+			  </div>
 			</form>
 		</div>
 	</div>
