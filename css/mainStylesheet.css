@@ -25,3 +25,25 @@ main {
 	height: 30%;
 	color: aliceblue;
 }
+
+/*Profile Picture*/
+
+.upload-button {
+    padding: 4px;
+    border: 1px solid black;
+    border-radius: 5px;
+    display: block;
+    float: left;
+}
+
+.profile-pic {
+    max-width: 200px;
+    max-height: 200px;
+    display: block;
+  	border-radius: 50%;
+}
+
+
+.file-upload {
+    display: none;
+}

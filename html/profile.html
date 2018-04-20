@@ -22,7 +22,30 @@ $(document).ready(function(){
 	$('.datepicker').datepicker();
 	//Collapsible
 	$('.collapsible').collapsible();
+	
+	//Profile picture
+ var readURL = function(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.profile-pic').attr('src', e.target.result);
+            }
+    
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $(".file-upload").on('change', function(){
+        readURL(this);
+    });
+    
+    $(".upload-button").on('click', function() {
+       $(".file-upload").click();
+    });
 });	
+
+
 	
 </script>
 <title>Profile</title>
@@ -39,9 +62,15 @@ $(document).ready(function(){
     </div>
   </nav>
  <h1 align="center">Your profile</h1> 
+ <p class="center-block">
+	<img class="profile-pic" src="../images/empty-profile.png" />
+		<div class="upload-button center-block">Upload Image</div>
+	<input class="file-upload" type="file" accept="image/*"/>
+ </p>
  <br />
+ <div class="cards">
 <ul class="collapsible">
-	<li>
+	<li class="active">
       <div class="collapsible-header"><i class="material-icons">account_box</i>Driver details</div>
       <div class="collapsible-body">	
 		<div class="row">
@@ -81,41 +110,42 @@ $(document).ready(function(){
 		</div>
 	</li>
 </ul>
-<ul class="collapsible">
-	<li>
-      <div class="collapsible-header"><i class="material-icons">people</i>Supervisor details</div>
-      <div class="collapsible-body">	
-		<div class="row">
-			<form class="col s12">
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="first_name" type="text" class="validate">
-				  <label for="first_name">First Name</label>
+</div>
+<div class="cards">
+	<ul class="collapsible">
+		<li>
+		  <div class="collapsible-header"><i class="material-icons">people</i>Supervisor details</div>
+		  <div class="collapsible-body">	
+			<div class="row">
+				<form class="col s12">
+				  <div class="row">
+					<div class="input-field col s12">
+					  <input id="first_name" type="text" class="validate">
+					  <label for="first_name">First Name</label>
+					</div>
+					<div class="input-field col s12">
+					  <input id="last_name" type="text" class="validate">
+					  <label for="last_name">Last Name</label>
+					</div>
+				  </div>
+				  <div class="row">
+					<div class="input-field col s12">
+					  <input id="licenceNo" type="number" class="validate" max="9" min="9">
+					  <label for="licenceNo">Licence Number</label>
+					</div>
+				  </div>
+				  <div class="row">
+					<div class="input-field col s12">
+					  <input id="phoneNo" type="tel" class="validate">
+					  <label for="phoneNo">Phone Number</label>
+					</div>
+					</div>
+					</form>
 				</div>
-				<div class="input-field col s12">
-				  <input id="last_name" type="text" class="validate">
-				  <label for="last_name">Last Name</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="licenceNo" type="number" class="validate" max="9" min="9">
-				  <label for="licenceNo">Licence Number</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="phoneNo" type="tel" class="validate">
-				  <label for="phoneNo">Phone Number</label>
-				</div>
-				</div>
-				</form>
 			</div>
-		</div>
-	</li>
-</ul> 
-  
-  
+		</li>
+	</ul> 
+</div>   
 <script type="text/javascript" src="js/materialize.min.js"></script>  
 </body>
 </html>
