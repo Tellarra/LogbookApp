@@ -12,6 +12,8 @@
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="../js/materialize.min.js"></script>
+<!-- Plugin listview -->
+<script src="../Plugins/jqmEditable/jqm.editable.listview.min.js"></script>
 <script>
 $(document).ready(function(){
 	//NavBar
@@ -68,84 +70,84 @@ $(document).ready(function(){
 	<input class="file-upload" type="file" accept="image/*"/>
  </p>
  <br />
- <div class="cards">
-<ul class="collapsible">
-	<li class="active">
-      <div class="collapsible-header"><i class="material-icons">account_box</i>Driver details</div>
-      <div class="collapsible-body">	
-		<div class="row">
-			<form class="col s12">
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="txtName" type="text" class="validate">
-				  <label for="txtName"> Name</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="txtBirthDate" type="text" class="datepicker">
-				  <label for="txtBirthDate">Birthdate</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="permitNo" type="number" class="validate" max="9" min="9">
-				  <label for="permitNo">Licence Number</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="txtPermitDate" type="text" class="datepicker">
-				  <label for="txtPermitDate">Permit Date</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-				  <input id="telNo" type="tel" class="validate">
-				  <label for="telNo">Phone Number</label>
-				</div>
-				</div>
-				</form>
-			</div>
-		</div>
-	</li>
-</ul>
-</div>
-<div class="cards">
-	<ul class="collapsible">
-		<li>
-		  <div class="collapsible-header"><i class="material-icons">people</i>Supervisor details</div>
-		  <div class="collapsible-body">	
+ <div class="col s12 m7 cards">
+    <div class="card horizontal">
+      <div class="card-stacked">
+        <div class="card-content">
+        <span class="card-title">You</span>
 			<div class="row">
 				<form class="col s12">
-				  <div class="row">
-					<div class="input-field col s12">
-					  <input id="first_name" type="text" class="validate">
-					  <label for="first_name">First Name</label>
-					</div>
-					<div class="input-field col s12">
-					  <input id="last_name" type="text" class="validate">
-					  <label for="last_name">Last Name</label>
-					</div>
-				  </div>
-				  <div class="row">
-					<div class="input-field col s12">
-					  <input id="licenceNo" type="number" class="validate" max="9" min="9">
-					  <label for="licenceNo">Licence Number</label>
-					</div>
-				  </div>
-				  <div class="row">
-					<div class="input-field col s12">
-					  <input id="phoneNo" type="tel" class="validate">
-					  <label for="phoneNo">Phone Number</label>
-					</div>
-					</div>
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="txtName" type="text" class="validate">
+							  		<label for="txtName"> Name</label>
+								</div>
+						  </div>
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="txtBirthDate" type="text" class="datepicker">
+							  		<label for="txtBirthDate">Birthdate</label>
+								</div>
+						  </div>
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="permitNo" type="number" class="validate" max="9" min="9">
+							  		<label for="permitNo">Licence Number</label>
+								</div>
+						  </div>
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="txtPermitDate" type="text" class="datepicker">
+							  		<label for="txtPermitDate">Permit Date</label>
+								</div>
+						  	</div>
+							<div class="row">
+							<div class="input-field col s12">
+				  				<input id="telNo" type="tel" class="validate">
+				  				<label for="telNo">Phone Number</label>
+							</div>
+						</div>
 					</form>
 				</div>
 			</div>
-		</li>
-	</ul> 
-</div>   
+		</div>
+	</div>
+</div>
+<div class="col s12 m7 cards">
+    <div class="card horizontal">
+      	<div class="card-stacked">
+        	<div class="card-content">
+        	<span class="card-title">Your supervisor</span>
+				<div class="row">
+					<form class="col s12">
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="first_name" type="text" class="validate">
+							  		<label for="first_name">First Name</label>
+								</div>
+								<div class="input-field col s12">
+							  		<input id="last_name" type="text" class="validate">
+							  		<label for="last_name">Last Name</label>
+								</div>
+						  	</div>
+							<div class="row">
+								<div class="input-field col s12">
+								  <input id="licenceNo" type="number" class="validate" max="9" min="9">
+								  <label for="licenceNo">Licence Number</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="phoneNo" type="tel" class="validate">
+									<label for="phoneNo">Phone Number</label>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	 </div>  
 <script type="text/javascript" src="js/materialize.min.js"></script>  
 </body>
 </html>
