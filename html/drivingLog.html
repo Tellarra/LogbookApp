@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../js/materialize.min.js"></script>
 
 <!-- Signature plugin -->
-<script src="../Plugins/js/jSignature.min.js"></script>
+<script src="../Plugins/jSignature/jSignature.min.js"></script>
 <script>
 $(document).ready(function(){
 	//NavBar
@@ -67,6 +67,14 @@ $(document).ready(function(){
 				  <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
 				</div>
 			  </div>
+			  <div class="input-field col s12 m6 hiddendiv">
+   				<i class="material-icons prefix">direction_car</i>
+    			<select class="icons">
+      				<option value="" disabled selected>Choose your car</option>
+      				<option value="Day">Day</option>
+   	 			</select>
+    		<label class="teal-text text-lighten-2">Light</label>
+  			</div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">event</i>
@@ -148,20 +156,26 @@ $(document).ready(function(){
 				  <div class="input-field col s12">
 					<p class="teal-text text-lighten-2">Signature</p>
 					<div id="signature"></div>
+					<p>
+			  			<button class="waves-effect waves-light btn" type="button" id="clearButton">Clear</button>
+			  		</p>
 				  </div>
 			  </div>
 			  <div class="input-field col s12">
-			  	<p>
-			  		<button class="waves-effect waves-light btn" type="button" id="clearButton">Clear</button>
-			  	</p>
-			  </div>
-			  <div class="input-field col s12">
-			  	<button class="btn waves-effect waves-light right red accent-4" type="submit" name="action">Submit
+			  <div class="right">
+			  	<button class="waves-effect waves-light btn" type="reset" id="resetButton">Reset</button>
+			  	<button class="btn waves-effect waves-light red accent-4" type="submit" name="action">Submit
     				<i class="material-icons right">send</i>
   				</button>
+  			  </div>
   			  </div>
 			</form>
 		</div>
 	</div>
+	<!--<footer class="page-footer">
+       	<div class="container center">
+        	© Adele Richard 100574185
+  		</div>
+ 	</footer>-->
 </body>
 </html>

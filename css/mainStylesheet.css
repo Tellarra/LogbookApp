@@ -6,6 +6,18 @@ body {
 	flex-direction: column;
 }
 
+.navbar {
+	margin-bottom: 30px;
+}
+
+.txtMargin {
+	margin-left: 1%;
+}
+
+.marginButton {
+	margin-bottom: 55px;
+}
+
 main {
 	flex: 1 0 auto;
 }
@@ -13,10 +25,12 @@ main {
 .cards {
 	padding-right: 5%; 
 	padding-left: 5%;
+	padding-bottom: 5px;
 }
 
 .card_icon {
 	margin-bottom: 5px;
+	color: #424242;
 }
 
 #signature {
@@ -46,4 +60,8 @@ main {
 
 .file-upload {
     display: none;
+}
+
+.btnPadding {
+	margin: 15px auto 15px auto;
 }
