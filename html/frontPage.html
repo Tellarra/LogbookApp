@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<!--Import Google Icon Font-->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!--Import materialize.css-->
+<link type="text/css" rel="stylesheet" href="../css/materialize.css"  media="screen,projection"/>
+<!--Let browser know website is optimized for mobile-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link type="text/css" rel="stylesheet" href="../css/mainStylesheet.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="../js/materialize.min.js"></script>
+<!-- progress bar -->
+<script type="text/javascript" src="../Plugins/progressBar/loading-bar.min.js"></script>
+<link type="text/css" rel="stylesheet" href="../Plugins/progressBar/loading-bar.css"/>
+<script>
+	/*var progressBar = new ldBar("#progressBar");
+	function circular01() {
+    var n, id, progress;
+    progress = new CircularProgress({ radius: 20  });
+    document.getElementById("progressBar").appendChild(progress.el);
+    n = 0;
+    id = setInterval(function () {
+      // if (n == 100) clearInterval(id);
+      if (n == 40) clearInterval(id);
+      progress.update(n++);
+    }, 100);
+  }*/
+</script>
+</head>
+
+<body>
+<nav>
+    <div class="nav-wrapper navbar">
+      <a href="#!" class="center brand-logo">Leaner App</a>
+    </div>
+  </nav>
+	<div class="ldBar label-center center" id="progressBar" data-type="stroke" data-stroke="green" data-stroke-width="5" data-fill-dir="btt" data-preset="circle" data-value="50">
+	</div>
+</body>
+</html>
