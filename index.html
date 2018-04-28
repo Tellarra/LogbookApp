@@ -12,6 +12,9 @@
 <link type="text/css" rel="stylesheet" href="css/mainStylesheet.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<!--Gauge-->
+<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
+<script src="Plugins/Creating-Animated-Gauges-Using-jQuery-Raphael-js-kumaGauge/Creating-Animated-Gauges-Using-jQuery-Raphael-js-kumaGauge/kuma-gauge.jquery.js"></script>
 
 <script>
 $(document).ready(function(){
@@ -21,6 +24,92 @@ $(document).ready(function(){
 	$('.fixed-action-btn').floatingActionButton();
 	//Tooltip
 	$('.tooltipped').tooltip();
+	//Gauge
+	$(".demo").kumaGauge({
+  		// dynamic value-up<a href="https://www.jqueryscript.net/time-clock/">date</a>. just for sample.
+  		value : Math.floor((Math.random() * 99) + 1),
+		// The radius of the arc
+		radius : 80, 
+
+		// The padding on the top and bottom of the gauge
+		paddingX : 40, 
+
+		// The padding on the left and right of the gauge
+		paddingY : 40,  
+
+		// The width of the gauge itseld
+		gaugeWidth : 30, 
+
+		// The fill of the gauge, this can be a solid color or a gradient
+		fill : "#ff5252", 
+
+		// The fill of the gauge background, this can be a solid color or a gradient
+		gaugeBackground : '#f4f4f4', 
+
+		// The fill of the canvas, this can be a solid color or a gradient
+		background : '#fff', 
+
+		// Show or hide the needle, 
+		// if true the value label shows half of the range
+		// if false the value label shows the value
+		showNeedle : false, 
+
+		// The speed of the animation in miliseconds
+		animationSpeed : 700, 
+
+		// The minimum value of the gauge
+		min : 0,
+
+		// The maximum value of the gauge
+		max : 100, 
+
+		// The actual value of the gauge
+		value : 80, 
+
+		// The label that indicates the value
+		valueLabel : {
+
+		  // show or hide this label
+		  display : true, 
+
+		  // The font family of this label
+		  fontFamily : 'Arial', 
+
+		  // The font color of this label
+		  fontColor : '#000', 
+
+		  // Integer of The font size of this label (without px)
+		  fontSize : 20, 
+
+		  // The font weight of this label
+		  fontWeight : 'normal',
+		},
+
+		title : {
+
+		  // show or hide this label
+		  display : true, 
+
+		  // String the value of the title
+		  value : 'Progression', 
+
+		  // The font family of this label
+		  fontFamily : 'Arial', 
+
+		  // The font color of this label
+		  fontColor : '#000', 
+
+		  // Integer of The font size of this label (without px)
+		  fontSize : 20, 
+
+		   // The font weight of this label
+		  fontWeight : 'normal'
+		},
+		label : {
+		  // show or hide this label
+		  display : false, 
+		}
+	});
 });
 </script>
 </head>
@@ -41,7 +130,9 @@ $(document).ready(function(){
 	<li><a href="html/profile.html">Profile</a></li>
     <li><a href="html/drivingLog.html">Log Book</a></li>
  </ul>
-<!--<div data-role="content">-->
+<!--Gauge -->
+<div class="js-gauge demo gauge center"></div>
+<!--Cards-->
 	<div class="col s12 m7 cards">
 		<div class="card horizontal">
 		  <div class="card-stacked">
