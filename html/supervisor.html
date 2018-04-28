@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!--Import Google Icon Font-->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!--Import materialize.css-->
+<link type="text/css" rel="stylesheet" href="../css/materialize.css"  media="screen,projection"/>
+<!--Let browser know website is optimized for mobile-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link type="text/css" rel="stylesheet" href="../css/mainStylesheet.css"/>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="../js/materialize.min.js"></script>
+<!--Validator-->
+<script src="../Plugins/validator/jquery.validate.js"></script>
+<script>
+$(document).ready(function(){
+	//NavBar
+    $('.sidenav').sidenav();
+	//Floating button +
+	$('.fixed-action-btn').floatingActionButton();
+	//Tooltip
+	$('.tooltipped').tooltip();
+	//modal
+	$('.modal').modal();
+	
+	//Validate Form
+		$("#addSupervisor").validate( {
+			rules: {
+				firstName: {
+					required: true,
+					minlength: 5
+				},
+				lastName: {
+					required: true,
+					minlength: 5
+				},
+				licenceNo: {
+					required: true,
+					minlength: 10,
+					letters:false
+				},
+				phoneNo: {
+					required: true,
+					minlength: 11,
+					letters:false
+				},
+			//For custom messages
+			messages: {
+				firstName: {
+					required: "Enter your first name",
+					minlength: "Enter at least 3 characters"
+				},
+				firstName: {
+					required: "Enter your last name",
+					minlength: "Enter at least 3 characters"
+				},
+				licenceNo: {
+					required: "You must enter your licence number",
+					minlength:"You need at least 9 for your licence number"
+				},
+				phoneNo: {
+					required: "You must enter your phone number",
+					minlength: "You need at least 10 for your phone number"
+				},
+			},
+			errorElement : 'div',
+			errorPlacement: function(error, element) {
+			  var placement = $(element).data('error');
+			  if (placement) {
+				$(placement).append(error)
+			  } else {
+				error.insertAfter(element);
+			  }
+			}
+		}
+	});
+});	
+
+
+	
+</script>
+<title>Profile</title>
+</head>
+
+<body>
+<nav>
+    <div class="nav-wrapper navbar">
+      <a href="#!" class="center brand-logo">Supervisors</a>
+      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+      <ul class="left hide-on-med-and-down">
+        <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
+      </ul>
+    </div>
+  </nav>
+ <h2 align="center">Your Supervisor's information</h2> 
+<div class="col s12 m7 cards">
+		
+
+<!-- Modal Structure -->
+<div id="modal1" class="modal">
+	<div class="modal-content">
+			<span class="card-title">Supervisor</span>
+				<div class="row">
+					<form class="col s12" id="addSupervisor" method="get">
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="firstName" type="text" class="validate" >
+							  		<label for="firstName">First Name</label>
+								</div>
+								<div class="input-field col s12">
+							  		<input id="lastName" type="text" class="validate">
+							  		<label for="lastName">Last Name</label>
+								</div>
+						  	</div>
+							<div class="row">
+								<div class="input-field col s12">
+								  <input id="licenceNo" type="number" class="validate">
+								  <label for="licenceNo">Licence Number</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="phoneNo" type="number" class="validate">
+									<label for="phoneNo">Phone Number</label>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="col s12">
+					<button class="waves-effect waves-light btn modalBtn" type="reset" id="resetButton">Cancel</button>
+					<button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action">Save
+						<i class="material-icons right">send</i>
+					</button>
+  				</div> 
+			</div>
+		</div>
+<!--Cards -->
+		<!--<button class="btn waves-effect waves-light btnPadding left red accent-2" id="editProfile">Edit</button>-->
+		
+	
+	<div class="col s12 m7 cards">
+		<div class="card horizontal">
+		  <div class="card-stacked">
+			<div class="card-content">
+			 <span class="card-title"><strong>Melanie Cookie</strong></span>
+				<div class="card_icon"><i class="material-icons left ">event</i><strong>Licence Number:</strong> 1569874569</div>
+				<div class="card_icon"><i class="material-icons left">people</i><strong>Phone:</strong> 0445698745</div>
+			</div>
+		  </div>
+	   </div>
+	   	<button data-target="modal1" class="btn modal-trigger right">Add</button>
+	</div>	
+</body>
+</html>
