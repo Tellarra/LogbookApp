@@ -17,18 +17,50 @@
 <script src="../Plugins/jSignature/jSignature.min.js"></script>
 <script>
 $(document).ready(function(){
-	//NavBar
+//Hide button
+	/*$("#saveInfo").hide();
+	$("#resetBtn").hide();
+	$("#clearSignature").hide();*/
+	
+//NavBar
     $('.sidenav').sidenav();
-	//Date picker
+//Date picker
 	$('.datepicker').datepicker();
-	//Time Picker
+//Time Picker
 	$('.timepicker').timepicker();
-	//Select Button
+//Select Button
 	$('select').formSelect();
-	//Signature
+//Signature
 	$("#signature").jSignature();
 	$(".clearButton").on("click", function() {
 		$("#signature").jSignature("clear");
+	});
+	
+//Edit button
+	$("#editSessions").on("click", function() {
+		$("#editSessions").addClass("hiddendiv");
+		$("#saveInfo").removeClass("hiddendiv");
+		$("#resetBtn").removeClass("hiddendiv");
+		$("#clearSignature").removeClass("hiddendiv");
+		
+		
+		$("input").each(function() {
+			$("input").prop("disabled",false);
+			$("select").prop("disabled",false);
+		});
+	});
+	
+//Save Button
+	$("#saveInfo").on("click", function() {
+		$("#editSessions").removeClass("hiddendiv");
+		$("#saveInfo").addClass("hiddendiv");
+		$("#resetBtn").addClass("hiddendiv");
+		$("#clearSignature").addClass("hiddendiv");
+		
+		$("input").each(function() {
+			$("input").prop("disabled",true);
+			$("select").prop("disabled",true);
+		});
 	});
 
 });		
@@ -162,19 +194,20 @@ $(document).ready(function(){
 					<p class="teal-text text-lighten-2">Signature</p>
 					<div id="signature"></div>
 					<p>
-			  			<button class="waves-effect waves-light btn clearButton" type="button">Clear</button>
+			  			<button class="waves-effect waves-light btn clearButton hiddendiv" type="button" id="clearSignature">Clear</button>
 			  		</p>
 				  </div>
 			  </div>
+			  </form>
 			  <div class="input-field col s12">
 				  <div class="right">
-					<button class="waves-effect waves-light btn clearButton" type="reset">Reset</button>
-					<button class="btn waves-effect waves-light red accent-4" type="submit" name="action">Submit
+					<button class="waves-effect waves-light btn clearButton hiddendiv" type="reset" id="resetBtn">Cancel</button>
+					<button class="btn waves-effect waves-light right red accent-2" id="editSessions">Edit</button>
+					<button class="btn waves-effect waves-light red accent-4 hiddendiv" type="submit" name="action" id="saveInfo">Submit
 						<i class="material-icons right">send</i>
 					</button>
 				  </div>
-  			  </div>
-			</form>
+  			 </div>
 		</div>
 	</div>
 </body>
