@@ -25,6 +25,11 @@ $(document).ready(function(){
 	//modal
 	$('.modal').modal();
 	
+	//Edit cards
+	$("#editProfile").on("click", function() {
+		$('.modal').modal();
+	});
+	
 	//Validate Form
 		$("#addSupervisor").validate( {
 			rules: {
@@ -138,9 +143,7 @@ $(document).ready(function(){
 			</div>
 		</div>
 <!--Cards -->
-		<!--<button class="btn waves-effect waves-light btnPadding left red accent-2" id="editProfile">Edit</button>-->
 		
-	
 	<div class="col s12 m7 cards">
 		<div class="card horizontal">
 		  <div class="card-stacked">
@@ -148,6 +151,7 @@ $(document).ready(function(){
 			 <span class="card-title"><strong>Melanie Cookie</strong></span>
 				<div class="card_icon"><i class="material-icons left ">event</i><strong>Licence Number:</strong> 1569874569</div>
 				<div class="card_icon"><i class="material-icons left">people</i><strong>Phone:</strong> 0445698745</div>
+				<button data-target="modal1" class="btn modal-trigger waves-effect waves-light right red accent-2" id="editProfile">Edit</button>
 			</div>
 		  </div>
 	   </div>
