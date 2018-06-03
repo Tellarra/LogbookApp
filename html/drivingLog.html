@@ -15,8 +15,22 @@
 
 <!-- Signature plugin -->
 <script src="../Plugins/jSignature/jSignature.min.js"></script>
+<script src="../Plugins/validator/jquery.validate.js"></script>
+<!-- Validator plugin -->
 <script>
-$(document).ready(function(){
+//Create Database
+var createTableSQL = "CREATE TABLE IF NOT EXISTS tblSession (fldLogNo INTEGER AUTOINCREMENT PRIMARY KEY, fldName TEXT, fldLicenceNo TEXT, fldCarRego TEXT, fldDate DATE, fldStartTime TIME, fldFinishTime TIME, fldDrivingTime TEXT, fldOdometerStart TEXT, fldOdometerFinish TEXT, fldParking TEXT, fldLight TEXT, fldConditions TEXT);";
+var insertSQL = "INSERT INTO tblSession (fldLogNo, fldName, fldLicenceNo, fldCarRego, fldDate, fldStartTime, fldFinishTime, fldDrivingTime, fldOdometerStart, fldOdometerFinish, fldParking, fldLight, fldConditions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+var showSQL = "SELECT * FROM tblSession;";
+var updateRecordSQL = "UPDATE tblSession SET fldStartTime=?, fldFinishTime=?, fldDrivingTime=?, fldOdometerStart=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo= ?;";
+var selectOtherTable = "SELECT * FROM tblSupervisor WHERE fldName=? AND fldLicenceNo=?;";
+var deleteSQL = "DELETE from tblSession WHERE fldLogNo=?;";
+var	deleteAllSQL = "DELETE from tblSession";
+var dropTable = "DROP TABLE tblSession";
+var db = null;	
+	
+$(document).ready(function() {
+	document.addEventListener("deviceready", onDeviceReady(), false);
 	//NavBar
     $('.sidenav').sidenav();
 	//Date picker
@@ -30,8 +44,109 @@ $(document).ready(function(){
 	$("#clearButton").on("click", function() {
 		$("#signature").jSignature("clear");
 	});
+});
+	
+var onDeviceReady = function() {
+  console.log("In deviceready");
+  try {
+    if( !window.openDatabase )
+      alert("This device does NOT support databases");
+    else {
+      var shortName = "Sessions";
+      var version = "1";
+      var displayName = "Sessions";
+      var maxSize = 1024;
+      db = window.openDatabase(shortName, version, displayName, maxSize);
+      console.log("Database opened");
+      db.transaction(populateDB, onError, showRecords);
+    } // end else
+  }
+  catch(err) {
+    console.log("Error: " + err);
+  }
+};
+	
+var populateDB = function(trans) {
+  db.transaction(function(trans) {
+	 trans.executeSql(createTableSQL,[]);
+	 //trans.executeSql(dropTable,[]);
+	  console.log("Table created");
+  }); // end of transaction
+};
+	
+var showRecords = function() {
+  console.log("In show records");
+  db.transaction(function(trans){
+    //trans.executeSql(showSQL,[], function(trans, result) {
+	  trans.executeSql(selectOtherTable,[], function(trans, result) {
+      var str = "";
 
-});		
+      /*if( result.rows.length == 0 ) {
+        //$("#txtName").val("<em>There are no records to display</em>");
+		//str += "<div class='col s12 m7 cards' >";
+		/*str += "<div class='card horizontal'>";
+		str += "<div class='card-stacked'></div></div>";
+        str = "<div value='0' style='text-align:center'><strong>There are no records to display</strong</div></div>";
+        $("#cardSup").html(str);
+        //$("#selTasks").selectmenu("refresh", true);
+      }*/
+      if( result.rows.length != 0 ) {
+		  
+        var noOfRecs = result.rows.length;
+        for(var i = 0; i < noOfRecs; i++) {
+          // saving row to a variable
+          var row = result.rows.item(i);
+		  str += "<div class='col s12 m7 cards' >";
+		  str += "<div class='card horizontal'>";
+		  str += "<div class='card-stacked'>";
+		  str += "<div class='card-content'>"
+		  str += "<span class='card-title'>";
+		  str += "<strong>" + row['fldName'] + "</strong></span>";
+		  str += "<div class='card_icon'>";
+		  str += "<i class='material-icons left'>event</i><strong>Licence Number:</strong> " + row['fldLicenceNo'] + "</div>";
+		  str += "<div class='card_icon'>";
+	      str += "<i class='material-icons left'>people</i><strong>Phone:</strong> " + row['fldPhoneNo'] + "</div>";
+		  str += "<button data-target='modal2' onClick='editRecord(\""+ row['fldName'] + "\"," + row['fldLicenceNo'] + ",\"" + row['fldPhoneNo'] +"\");'";
+		  str += "class='btn modal-trigger waves-effect waves-light red accent-2'>Edit</button>";
+		  str +="<button onClick='deleteRecord(\"" + row['fldLicenceNo'] + "\");' class='btn waves-effect waves-light right red'>Delete</button></div></div></div></div>";
+			
+          //$("#licenceNoCard").append(str);
+        }
+        $("#cardSup").append(str);
+        console.log("Supervisor added to card");
+      } // end else
+    });
+  });
+};
+	
+var onError = function(err) {
+	var str = "";
+	switch(err.code)	{
+		case	0:  str += "Non database error: " + err.message;
+					break;
+		case	1:	str += "Some database error: " + err.message;
+					break;
+		case	2:	str += "Wrong database version: " + err.message;
+					break;
+		case	3:	str += "Data set too large to return from query: " + err.message;
+					break;
+		case	4: 	str += "Storage limit exceeded: " + err.message;
+					break;
+		case	5:	str += "Lock contension error: " + err.message;
+					break;
+		case	6:	str += "Constraint failure: " + err.message;
+					break;
+		default	:	str += "Error: " + err.code + " " + err.message;
+					break;
+	}
+	console.log(str);
+}
+
+var clearTxt = function clearTxt() {
+  setTimeout(function(){$(".msg").html("");}, 1000);
+}
+	
+
 </script>
 <title>LogBook</title>
 </head>
@@ -49,35 +164,35 @@ $(document).ready(function(){
   </nav>
  <h1 align="center">Enter your session's information</h1>
 <div class="row">
-	<form class="col s12">
+	<form method="get" id="formValidate" class="col s12">
   		<div class="row">
 				<div class="input-field col s12">
 			 	  <i class="material-icons prefix">card_membership</i>
-				  <input id="txtSupName" type="text" class="validate">
-				  <label for="txtSupName" class="teal-text text-lighten-2">Supervisor's Name</label>
-				  <span class="helper-text" data-error="Your license Number must contain 9 digits" data-success="Correct"></span>
+				  <input id="txtName" type="text" class="validate">
+				  <label for="txtName" class="teal-text text-lighten-2">Learner's Name</label>
+				  <span class="helper-text" ></span>
 				</div>
 			  </div>
-			  <div class="input-field col s12 m6 hiddendiv">
+			  <!--<div class="input-field col s12 m6 hiddendiv">
 					<i class="material-icons prefix">people</i>
 						<select class="icons">
 							<option value="" selected>Alan Parish</option>
 							<option value="">Melanie Cookie</option>
 						</select>
 					<label class="teal-text text-lighten-2">Supervisor's name</label>
-			  </div>
+			  </div>-->
 		  <div class="row">
 				<div class="input-field col s12">
 			 	  <i class="material-icons prefix">card_membership</i>
-				  <input id="txtLicenseNo" type="text" class="validate">
+				  <input id="txtLicenseNo" type="text" class="validate" required="">
 				  <label for="txtLicenseNo" class="teal-text text-lighten-2">Supervisor's License Number</label>
-				  <span class="helper-text" data-error="Your license Number must contain 9 digits" data-success="Correct"></span>
+				  <span class="helper-text"></span>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">directions_car</i>
-				  <input id="txtRegNo" type="text" class="validate">
+				  <input id="txtRegNo" type="text" class="validate" required aria-required="true">
 				  <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
 				</div>
 			</div>
@@ -129,6 +244,14 @@ $(document).ready(function(){
 			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 				  <input id="txtOdomAfter" type="text" class="validate">
 				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
+				</div>
+			  </div>
+			   <div class="row">
+				<div class="input-field col s12">
+			 	  <i class="material-icons prefix">directions_car</i>
+				  <input id="txtParking" type="text" class="validate" required="">
+				  <label for="txtParking" class="teal-text text-lighten-2">Parking</label>
+				  <span class="helper-text"></span>
 				</div>
 			  </div>
 			  <div class="input-field col s12 m6">
