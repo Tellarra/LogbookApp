@@ -19,11 +19,12 @@
 <!-- Validator plugin -->
 <script>
 //Create Database
-var createTableSQL = "CREATE TABLE IF NOT EXISTS tblSession (fldLogNo INTEGER AUTOINCREMENT PRIMARY KEY, fldName TEXT, fldLicenceNo TEXT, fldCarRego TEXT, fldDate DATE, fldStartTime TIME, fldFinishTime TIME, fldDrivingTime TEXT, fldOdometerStart TEXT, fldOdometerFinish TEXT, fldParking TEXT, fldLight TEXT, fldConditions TEXT);";
+var createTableSQL = "CREATE TABLE IF NOT EXISTS tblSession (fldLogNo INTEGER PRIMARY KEY AUTOINCREMENT, fldName TEXT, fldLicenceNo TEXT, fldCarRego TEXT, fldDate DATE, fldStartTime TIME, fldFinishTime TIME, fldDrivingTime TEXT, fldOdometerStart TEXT, fldOdometerFinish TEXT, fldParking TEXT, fldLight TEXT, fldConditions TEXT);";
 var insertSQL = "INSERT INTO tblSession (fldLogNo, fldName, fldLicenceNo, fldCarRego, fldDate, fldStartTime, fldFinishTime, fldDrivingTime, fldOdometerStart, fldOdometerFinish, fldParking, fldLight, fldConditions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 var showSQL = "SELECT * FROM tblSession;";
 var updateRecordSQL = "UPDATE tblSession SET fldStartTime=?, fldFinishTime=?, fldDrivingTime=?, fldOdometerStart=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo= ?;";
-var selectOtherTable = "SELECT * FROM tblSupervisor WHERE fldName=? AND fldLicenceNo=?;";
+var selectOtherTable = "SELECT tblSupervisor FROM Log Book WHERE type = 'table';";
+var selectAllRecordSupervisor =  "SELECT * FROM tblSupervisor;";
 var deleteSQL = "DELETE from tblSession WHERE fldLogNo=?;";
 var	deleteAllSQL = "DELETE from tblSession";
 var dropTable = "DROP TABLE tblSession";
@@ -39,6 +40,8 @@ $(document).ready(function() {
 	$('.timepicker').timepicker();
 	//Select Button
 	$('select').formSelect();
+	//Put label on top of the text input
+	//M.updateTextFields();
 	//Signature
 	$("#signature").jSignature();
 	$("#clearButton").on("click", function() {
@@ -52,13 +55,13 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      var shortName = "Sessions";
+      /*var shortName = "Sessions";
       var version = "1";
       var displayName = "Sessions";
-      var maxSize = 1024;
-      db = window.openDatabase(shortName, version, displayName, maxSize);
+      var maxSize = 1024;*/
+      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
       console.log("Database opened");
-      db.transaction(populateDB, onError, showRecords);
+      db.transaction(populateDB, onError);
     } // end else
   }
   catch(err) {
@@ -68,7 +71,11 @@ var onDeviceReady = function() {
 	
 var populateDB = function(trans) {
   db.transaction(function(trans) {
-	 trans.executeSql(createTableSQL,[]);
+	  trans.executeSql(createTableSQL,[]);
+	  trans.executeSql(selectOtherTable,[]);
+
+	  db.transaction(showRecords);
+	 
 	 //trans.executeSql(dropTable,[]);
 	  console.log("Table created");
   }); // end of transaction
@@ -77,43 +84,34 @@ var populateDB = function(trans) {
 var showRecords = function() {
   console.log("In show records");
   db.transaction(function(trans){
-    //trans.executeSql(showSQL,[], function(trans, result) {
-	  trans.executeSql(selectOtherTable,[], function(trans, result) {
+	  console.log(selectAllRecordSupervisor);
+	  trans.executeSql(selectAllRecordSupervisor,[], function(trans, result) {
       var str = "";
-
-      /*if( result.rows.length == 0 ) {
-        //$("#txtName").val("<em>There are no records to display</em>");
-		//str += "<div class='col s12 m7 cards' >";
-		/*str += "<div class='card horizontal'>";
-		str += "<div class='card-stacked'></div></div>";
-        str = "<div value='0' style='text-align:center'><strong>There are no records to display</strong</div></div>";
-        $("#cardSup").html(str);
-        //$("#selTasks").selectmenu("refresh", true);
-      }*/
-      if( result.rows.length != 0 ) {
-		  
+	console.log(result);
+      	
+      if( result.rows.length == 0 ) {
+		  $("#selName").addClass("hiddendiv");
+		  $("#divName").removeClass("hiddendiv");
+      } else {
+		$("#divName").addClass("hiddendiv");
+		$("#selName").removeClass("hiddendiv");
         var noOfRecs = result.rows.length;
+		var output = "";
+		  
         for(var i = 0; i < noOfRecs; i++) {
           // saving row to a variable
-          var row = result.rows.item(i);
-		  str += "<div class='col s12 m7 cards' >";
-		  str += "<div class='card horizontal'>";
-		  str += "<div class='card-stacked'>";
-		  str += "<div class='card-content'>"
-		  str += "<span class='card-title'>";
-		  str += "<strong>" + row['fldName'] + "</strong></span>";
-		  str += "<div class='card_icon'>";
-		  str += "<i class='material-icons left'>event</i><strong>Licence Number:</strong> " + row['fldLicenceNo'] + "</div>";
-		  str += "<div class='card_icon'>";
-	      str += "<i class='material-icons left'>people</i><strong>Phone:</strong> " + row['fldPhoneNo'] + "</div>";
-		  str += "<button data-target='modal2' onClick='editRecord(\""+ row['fldName'] + "\"," + row['fldLicenceNo'] + ",\"" + row['fldPhoneNo'] +"\");'";
-		  str += "class='btn modal-trigger waves-effect waves-light red accent-2'>Edit</button>";
-		  str +="<button onClick='deleteRecord(\"" + row['fldLicenceNo'] + "\");' class='btn waves-effect waves-light right red'>Delete</button></div></div></div></div>";
+          	var row = result.rows.item(i);
+			console.log(row['fldName']);
+			//output += "<select class='icons' id='selName'>";
+			output += "<option value='" + row['fldName'] + "'>" + row['fldName'] + "</option>";
+			//output += "</select>";
 			
-          //$("#licenceNoCard").append(str);
         }
-        $("#cardSup").append(str);
-        console.log("Supervisor added to card");
+		  console.log(output);
+		 //$("#selName").material_select(output);
+        $(".select-wrapper #selName").append(output);
+		$(".select-wrapper #selName").formSelect();
+        console.log("Name added to select");
       } // end else
     });
   });
@@ -166,21 +164,20 @@ var clearTxt = function clearTxt() {
 <div class="row">
 	<form method="get" id="formValidate" class="col s12">
   		<div class="row">
-				<div class="input-field col s12">
+				<div id="divName" class="input-field col s12">
 			 	  <i class="material-icons prefix">card_membership</i>
 				  <input id="txtName" type="text" class="validate">
-				  <label for="txtName" class="teal-text text-lighten-2">Learner's Name</label>
+				  <label for="txtName" class="active teal-text text-lighten-2">Learner's Name</label>
 				  <span class="helper-text" ></span>
 				</div>
 			  </div>
-			  <!--<div class="input-field col s12 m6 hiddendiv">
+			  <div class="input-field col s12 m6">
 					<i class="material-icons prefix">people</i>
-						<select class="icons">
-							<option value="" selected>Alan Parish</option>
-							<option value="">Melanie Cookie</option>
+						<select class="icons" id="selName">
+							
 						</select>
 					<label class="teal-text text-lighten-2">Supervisor's name</label>
-			  </div>-->
+			  </div>
 		  <div class="row">
 				<div class="input-field col s12">
 			 	  <i class="material-icons prefix">card_membership</i>
@@ -196,14 +193,14 @@ var clearTxt = function clearTxt() {
 				  <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
 				</div>
 			</div>
-			<div class="input-field col s12 m6 hiddendiv">
+			<!--<div class="input-field col s12 m6 hiddendiv">
    				<i class="material-icons prefix">directions_car</i>
     			<select class="icons">
       				<option value="" disabled selected>James' Car</option>
       				<option value="Day">Day</option>
    	 			</select>
     			<label class="teal-text text-lighten-2">Choose your car</label>
-  			</div>
+  			</div>-->
 			<div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">event</i>

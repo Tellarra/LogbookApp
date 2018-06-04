@@ -66,9 +66,9 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      var shortName = "Supervisor";
+      var shortName = "Log Book";
       var version = "1";
-      var displayName = "Supervisor";
+      var displayName = "Log Book";
       var maxSize = 1024;
       db = window.openDatabase(shortName, version, displayName, maxSize);
       console.log("Database opened");
@@ -101,7 +101,6 @@ var showRecords = function() {
 		str += "<div class='card-stacked'></div></div>";
         str = "<div value='0' style='text-align:center'><strong>There are no records to display</strong</div></div>";
         $("#cardSup").html(str);
-        //$("#selTasks").selectmenu("refresh", true);
       }
       else {
         var noOfRecs = result.rows.length;
@@ -140,8 +139,9 @@ var insertRecord = function() {
 
   console.log( "New Supervisor: " + newName );
     db.transaction(function(trans) {
-      trans.executeSql(insertSQL, [newLicenceNo, newName, newPhoneNo],showRecords, onError);
+      trans.executeSql(insertSQL, [newLicenceNo, newName, newPhoneNo], onError);
     });
+	location.reload();
 	
 	$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
     clearTxt();
@@ -164,8 +164,9 @@ var saveRecord = function() {
 	var phoneNo = $("#editPhoneNo").val();
 	
 	db.transaction(function(trans) {
-		  trans.executeSql(updateRecordSQL, [name, phoneNo, licenceNo],showRecords, onError);
+		  trans.executeSql(updateRecordSQL, [name, phoneNo, licenceNo], showRecords, onError);
 	});
+	location.reload();
 	clearTxt();
 	return true;
 }
@@ -174,17 +175,15 @@ var deleteRecord = function(licenceNo)
 {
 	var q = confirm("Do you wish to delete this record");
 
-	if(q)
-	{
+	if(q) {
 		db.transaction(function(trans) {
-			trans.executeSql(deleteSQL, [licenceNo], showRecords, onError);
+			trans.executeSql(deleteSQL, [licenceNo], onError);
 		});
 		$(".msg").html("Record deleted");
+		location.reload();
 		clearTxt();
 		return true;
-	}
-	else
-	{
+	} else {
 		$(".msg").html("Record NOT deleted");
 		clearTxt();
 		return false;
