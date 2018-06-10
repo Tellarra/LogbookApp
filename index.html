@@ -197,6 +197,8 @@ var showRecords = function() {
 							output += "<p>This session is not finished yet - Click to edit it</p>";
 							console.log(output);
 						} else {
+							var drivingTime = row['fldStartTime'] - row['fldFinishTime'];
+							console.log(drivingTime);
 							console.log("in values");
 							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>2 hours</div>";
 							output += "<div class='card_icon'><i class='material-icons left'>brightness_4</i>Day/Night</div>";

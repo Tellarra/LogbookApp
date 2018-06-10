@@ -17,6 +17,7 @@
 <script src="../Plugins/jSignature/jSignature.min.js"></script>
 <script>
 var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
+var insertSQL = "INSERT INTO tblSession (fldFinishTime, fldDrivingTime, fldOdometerFinish, fldLight, fldConditions, fldParking) VALUES (?, ?, ?, ?, ?,?);";
 $(document).ready(function(){
 	document.addEventListener("deviceready", onDeviceReady(), false);
 	var id = getUrlVars()["ID"];
@@ -31,7 +32,10 @@ $(document).ready(function(){
 //Date picker
 	$('.datepicker').datepicker();
 //Time Picker
-	$('.timepicker').timepicker();
+	$('.timepicker').timepicker({
+		defaultTime: 'now',
+		twelveHour: false,
+	});
 //Select Button
 	$('select').formSelect();
 //Signature
@@ -53,21 +57,22 @@ $(document).ready(function(){
 			$("select").prop("disabled",false);
 		});*/
 		
-		$("#txtFinishTime").prop("disabled",false);
+		/*$("#txtFinishTime").prop("disabled",false);
 		$("#txtTime").prop("disabled",false);
-		$("#txtOdomAfter").prop("disabled",false);
-		$("input").each(function() {
-			$("select").prop("disabled",false);
-		});
+		$("#txtOdomAfter").prop("disabled",false);*/
+		/*$("input").each(function() {
+			$("select").removeAttr("disabled",false);
+		});*/
 		
-		//$("select #txtLight").prop("disabled",false);
-		//$("select #selConditions").prop("disabled",false);
-		$("type[radio]").prop("disabled",false);
+		/*$("select #txtLight").prop("disabled",false);
+		$("select #selConditions").prop("disabled",false);
+		$("type[radio]").prop("disabled",false);*/
 	});
 	
 //Save Button
 	$("#saveInfo").on("click", function() {
-		$("#editSessions").removeClass("hiddendiv");
+		insertRecord();
+		/*$("#editSessions").removeClass("hiddendiv");
 		$("#saveInfo").addClass("hiddendiv");
 		$("#resetBtn").addClass("hiddendiv");
 		$("#clearSignature").addClass("hiddendiv");
@@ -75,7 +80,7 @@ $(document).ready(function(){
 		$("input").each(function() {
 			$("input").prop("disabled",true);
 			$("select").prop("disabled",true);
-		});
+		});*/
 	});
 });		
 	
@@ -159,6 +164,45 @@ var showRecords = function() {
     });
   });
 };
+	
+var insertRecord = function() {
+  console.log("In insertRecord");
+  /*var logId = 0;
+	logId =+ 1;
+	console.log(logId);*/
+  //var newName = $("#txtProfileName").val();
+  //var newLogId = $("#txtId").val(logId);
+  var newFinishTime = $("#txtFinishTime").val();
+  var newLight = $("#txtLight option:selected").val();
+	var newConditions = "";
+	//$("#selConditions optgroup").each(function () {
+		//newConditions += $("#selConditions optgroup option:selected").val() + ", ";
+	//});
+  var newConditions = $("#selConditions").val();
+  var newOdometerFinish = $("#txtOdemeterAfter").val();
+  var newParking = $("input[name='radParking']:checked").val();
+  newConditions = newConditions.toString();
+  console.log( "New session: " + newLight, newConditions, newParking );
+    db.transaction(function(trans) {
+		var newDrivingTime = 0;
+		trans.executeSql(selectOtherTable, [], function(trans, result) {
+			var noOfRecs = result.rows.length;
+			for(var i = 0; i < noOfRecs; i++) {
+				var row = result.rows.length;
+				newDrivingTime = row['fldStartTime'] - row['fldFinishTime'];
+				console.log(newDrivingTime);
+				//newDrivingTime += 
+			}
+		});
+      //trans.executeSql(insertSQL, [newFinishTime, newOdometerFinish, newLight, newConditions, newParking], onError);
+    });
+	//location.reload();
+	
+	//console.log(newSupervisorName, newLicenceNo, newCarRego,newDate, newStartTime, newOdometerStart);
+	//$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
+    //clearTxt();
+    return true;
+}
 	
 var onError = function(err) {
 	var str = "";
@@ -258,14 +302,14 @@ var clearTxt = function clearTxt() {
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">av_timer</i>
-				  <input id="txtFinishTime" type="text" disabled class="timepicker">
+				  <input id="txtFinishTime" type="text" class="timepicker">
 				  <label for="txtFinishTime" class="teal-text text-lighten-2">Finish time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<img src="../images/icons8-png/icons8-au-volant-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtTime" type="text" disabled class="validate">
+				  <input id="txtTime" type="text" class="validate">
 				  <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
 				</div>
 			  </div>
@@ -278,14 +322,14 @@ var clearTxt = function clearTxt() {
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
-			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdomAfter" type="text" disabled class="validate">
+			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" value="" class="prefix" style="width: 24px; height: 24px;">
+				  <input id="txtOdomAfter" type="text" class="validate">
 				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
 				</div>
 			  </div>
 			  <div class="input-field col s12 m6">
    				<i class="material-icons prefix">wb_sunny</i>
-    			<select id="txtlight" disabled class="icons">
+    			<select id="txtLight" class="icons">
       				<option value="" selected>Choose your option</option>
       				<option value="Day" selected="true">Day</option>
       				<option value="Night">Night</option>
@@ -295,7 +339,7 @@ var clearTxt = function clearTxt() {
   			</div>
   			<div class="input-field col s12">
   			<img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				<select id="selConditions" disabled multiple>
+				<select id="selConditions" multiple="multiple">
 				  <option value="" selected>Choose your options</option>
 				  <optgroup label="Traffic">
 					  <option value="Light">Light</option>
@@ -324,11 +368,11 @@ var clearTxt = function clearTxt() {
 						<img src="../images/icons8-png/icons8-parking-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 						<label for="radParkingYes" class="teal-text text-lighten-2">Parking</label>
 						<label> 
-							<input id="radParkingYes" name="radParking" type="radio" class="with-gap" disabled checked />
+							<input id="radParkingYes" name="radParking" type="radio" value="Yes" class="with-gap" checked />
 							<span>Yes</span>
 						</label>
 						<label> 
-							<input id="radParkingNo" name="radParking" type="radio" class="with-gap" disabled/>
+							<input id="radParkingNo" name="radParking" type="radio" value="No" class="with-gap"/>
 							<span>No</span>
 						</label>
 					</p>
@@ -346,9 +390,9 @@ var clearTxt = function clearTxt() {
 			  </form>
 			  <div class="input-field col s12">
 				  <div class="right">
-					<button class="waves-effect waves-light btn clearButton hiddendiv" type="reset" id="resetBtn">Cancel</button>
-					<button class="btn waves-effect waves-light right red accent-2" id="editSessions">Edit</button>
-					<button class="btn waves-effect waves-light red accent-4 hiddendiv" type="submit" name="action" id="saveInfo">Submit
+					<button class="waves-effect waves-light btn clearButton" type="reset" id="resetBtn">Cancel</button>
+<!--					<button class="btn waves-effect waves-light right red accent-2" id="editSessions">Edit</button>-->
+					<button class="btn waves-effect waves-light red accent-4" type="submit" name="action" id="saveInfo">Submit
 						<i class="material-icons right">send</i>
 					</button>
 				  </div>
