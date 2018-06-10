@@ -17,7 +17,7 @@
 <script>
 //Create Database
 var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhone TEXT);";
-var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldPhoneNo) VALUES (?, ?, ?);";
+var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
 var showSQL = "SELECT * FROM tblProfile;";
 var updateRecordSQL = "UPDATE tblProfile SET fldName=?, fldPhoneNo=? WHERE fldLicenceNo = ?;";
 var deleteSQL = "DELETE from tblProfile WHERE fldLicenceNo=?;";

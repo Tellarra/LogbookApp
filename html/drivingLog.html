@@ -19,15 +19,15 @@
 <!-- Validator plugin -->
 <script>
 //Create Database
-var createTableSQL = "CREATE TABLE IF NOT EXISTS tblSession (fldLogNo INTEGER PRIMARY KEY AUTOINCREMENT, fldName TEXT, fldLicenceNo TEXT, fldCarRego TEXT, fldDate DATE, fldStartTime TIME, fldFinishTime TIME, fldDrivingTime TEXT, fldOdometerStart TEXT, fldOdometerFinish TEXT, fldParking TEXT, fldLight TEXT, fldConditions TEXT);";
-var insertSQL = "INSERT INTO tblSession (fldLogNo, fldName, fldLicenceNo, fldCarRego, fldDate, fldStartTime, fldFinishTime, fldDrivingTime, fldOdometerStart, fldOdometerFinish, fldParking, fldLight, fldConditions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+var createTableSQL = "CREATE TABLE IF NOT EXISTS tblSession (fldLogNo INTEGER PRIMARY KEY, fldSupervisorName TEXT, fldLicenceNo TEXT, fldCarRego  TEXT, fldDate DATE, fldStartTime TIME, fldFinishTime TIME, fldDrivingTime TEXT, fldOdometerStart TEXT, fldOdometerFinish TEXT, fldParking TEXT, fldLight TEXT, fldConditions TEXT);";
+var insertSQL = "INSERT INTO tblSession (fldSupervisorName, fldLicenceNo, fldCarRego, fldDate, fldStartTime, fldOdometerStart) VALUES (?, ?, ?, ?, ?,?);";
 var showSQL = "SELECT * FROM tblSession;";
-var updateRecordSQL = "UPDATE tblSession SET fldStartTime=?, fldFinishTime=?, fldDrivingTime=?, fldOdometerStart=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo= ?;";
-var selectOtherTable = "SELECT tblSupervisor FROM Log Book WHERE type = 'table';";
-var selectAllRecordSupervisor =  "SELECT * FROM tblSupervisor;";
+var updateRecordSQL = "UPDATE tblSession fldFinishTime=?, fldDrivingTime=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo= ?;";
+var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 var deleteSQL = "DELETE from tblSession WHERE fldLogNo=?;";
 var	deleteAllSQL = "DELETE from tblSession";
-var dropTable = "DROP TABLE tblSession";
+//var dropTable = "DROP TABLE sqlite_sequence";
+var dropTable2 = "DROP TABLE tblSession;";
 var db = null;	
 	
 $(document).ready(function() {
@@ -35,9 +35,14 @@ $(document).ready(function() {
 	//NavBar
     $('.sidenav').sidenav();
 	//Date picker
-	$('.datepicker').datepicker();
+	$('.datepicker').datepicker({
+		defaultDate: 'now',
+	});
 	//Time Picker
-	$('.timepicker').timepicker();
+	$('.timepicker').timepicker({
+		defaultTime: 'now',
+		twelveHour: false,
+	});
 	//Select Button
 	$('select').formSelect();
 	//Put label on top of the text input
@@ -47,6 +52,14 @@ $(document).ready(function() {
 	$("#clearButton").on("click", function() {
 		$("#signature").jSignature("clear");
 	});
+	//Save
+	$("#submitForm").on("click", function() {
+		insertRecord();
+		var datapair = $("#signature").jSignature("getData", "svgbase64");
+		var i = new Image();
+		i.src = "data:" + datapair[0] + "," + datapair[1];
+		console.log(i);
+	});
 });
 	
 var onDeviceReady = function() {
@@ -55,10 +68,6 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      /*var shortName = "Sessions";
-      var version = "1";
-      var displayName = "Sessions";
-      var maxSize = 1024;*/
       db = window.openDatabase("Log Book", "1", "Log Book", "1024");
       console.log("Database opened");
       db.transaction(populateDB, onError);
@@ -71,7 +80,11 @@ var onDeviceReady = function() {
 	
 var populateDB = function(trans) {
   db.transaction(function(trans) {
+	  //trans.executeSql(dropTable,[]);
+	  //trans.executeSql(dropTable2, []);
+	  //console.log("drop table");
 	  trans.executeSql(createTableSQL,[]);
+	   console.log(createTableSQL);
 	  trans.executeSql(selectOtherTable,[]);
 
 	  db.transaction(showRecords);
@@ -83,9 +96,9 @@ var populateDB = function(trans) {
 	
 var showRecords = function() {
   console.log("In show records");
-  db.transaction(function(trans){
-	  console.log(selectAllRecordSupervisor);
-	  trans.executeSql(selectAllRecordSupervisor,[], function(trans, result) {
+  db.transaction(function(trans) {
+	  //console.log(selectAllRecordSupervisor);
+	  trans.executeSql( "SELECT * FROM tblSupervisor;",[], function(trans, result) {
       var str = "";
 	console.log(result);
       	
@@ -97,25 +110,94 @@ var showRecords = function() {
 		$("#selName").removeClass("hiddendiv");
         var noOfRecs = result.rows.length;
 		var output = "";
+		var outputLicenceNo= ""; 
 		  
         for(var i = 0; i < noOfRecs; i++) {
-          // saving row to a variable
-          	var row = result.rows.item(i);
-			console.log(row['fldName']);
-			//output += "<select class='icons' id='selName'>";
-			output += "<option value='" + row['fldName'] + "'>" + row['fldName'] + "</option>";
-			//output += "</select>";
-			
+          //saving row to a variable
+			//for(var j = 0; j < noOfRecs; j++) {
+				var rowName = result.rows.item(i);
+				//var rowLicenceNo = result.rows.item(j);
+				//console.log(row['fldName']);
+				output += "<option value='" + rowName['fldName'] + "'>" + rowName['fldName'] + "</option>";
+				outputLicenceNo += "<option value='" + rowName['fldLicenceNo'] + "'>" + rowName['fldLicenceNo'] + " - " + rowName['fldName'] + "</option>";
+				//outputLicenceNo = rowLicenceNo['fldLicenceNo'];
+			//}	
         }
-		  console.log(output);
-		 //$("#selName").material_select(output);
         $(".select-wrapper #selName").append(output);
 		$(".select-wrapper #selName").formSelect();
+		$(".select-wrapper #selLicenceNo").append(outputLicenceNo);
+		$(".select-wrapper #selLicenceNo").formSelect();
         console.log("Name added to select");
+      } // end else
+    });
+	  //Profile
+	   trans.executeSql( "SELECT * FROM tblProfile;",[], function(trans, result) {
+      var str = "";
+	console.log(result);
+      	
+      if( result.rows.length == 0 ) {
+		  $("#txtProfileName").html("You must create a profile first");
+      } else {
+        var noOfRecs = result.rows.length;
+		  
+        for(var i = 0; i < noOfRecs; i++) {
+          //saving row to a variable
+          	var row = result.rows.item(i);
+			$("#txtProfileName").html(row['fldName']);
+			$("#txtProfileName").val(row['fldName']);
+        }
+		  M.updateTextFields();
+        //$(".select-wrapper #selName").append(output);
+		//$(".select-wrapper #selName").formSelect();
+        console.log("Name added to div");
       } // end else
     });
   });
 };
+	
+var insertRecord = function() {
+	/*var logId = 0;
+	db.transaction(function(trans) {
+	  //console.log(selectAllRecordSupervisor);
+	  trans.executeSql( "SELECT * FROM tblSession;",[], function(trans, result) {
+		  var noOfRecs = result.rows.length;
+		  if( result.rows.length == 0 ) {
+		  	logId = 1;
+		  } else {
+				for(var i = 0; i < noOfRecs; i++) {
+          		//saving row to a variable
+          			var row = result.rows.item(i);
+					logId = row['fldLogNo'] + 1;
+        		}
+		  	}
+		  console.log(logId);
+		  $("#txtId").val(logId);
+	  });
+	});*/
+  console.log("In insertRecord");
+  /*var logId = 0;
+	logId =+ 1;
+	console.log(logId);*/
+  //var newName = $("#txtProfileName").val();
+  //var newLogId = $("#txtId").val(logId);
+  var newSupervisorName = $(".select-wrapper #selName option:selected").val();
+  var newLicenceNo = $(".select-wrapper #selLicenceNo option:selected").val();
+  var newCarRego = $("#txtRegNo").val();
+  var newDate = $("#txtDate").val();
+  var newStartTime = $("#txtStartTime").val();
+  var newOdometerStart = $(".txtOdometer").val();
+
+  console.log( "New Supervisor: " + newSupervisorName );
+    db.transaction(function(trans) {
+      trans.executeSql(insertSQL, [newSupervisorName, newLicenceNo, newCarRego, newDate, newStartTime, newOdometerStart], onError);
+    });
+	//location.reload();
+	
+	console.log(newSupervisorName, newLicenceNo, newCarRego,newDate, newStartTime, newOdometerStart);
+	//$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
+    //clearTxt();
+    return true;
+}
 	
 var onError = function(err) {
 	var str = "";
@@ -161,16 +243,25 @@ var clearTxt = function clearTxt() {
     </div>
   </nav>
  <h1 align="center">Enter your session's information</h1>
+ <input type="hidden" id="txtId">
 <div class="row">
 	<form method="get" id="formValidate" class="col s12">
-  		<div class="row">
-				<div id="divName" class="input-field col s12">
+ 		<div class="row">
+			<div class="input-field col s12">
+				<i class="material-icons prefix">person</i>
+				<input id="txtProfileName" type="text" value="" disabled>
+				<label for="txtProfileName" class="active teal-text text-lighten-2">Learner's Name</label>
+				<span class="helper-text" ></span>
+			</div>
+		</div>
+  		<div class="row" id="divName">
+				<div  class="input-field col s12">
 			 	  <i class="material-icons prefix">card_membership</i>
 				  <input id="txtName" type="text" class="validate">
-				  <label for="txtName" class="active teal-text text-lighten-2">Learner's Name</label>
+				  <label for="txtName" class="active teal-text text-lighten-2">Supervisor's Name</label>
 				  <span class="helper-text" ></span>
 				</div>
-			  </div>
+		</div>
 			  <div class="input-field col s12 m6">
 					<i class="material-icons prefix">people</i>
 						<select class="icons" id="selName">
@@ -178,13 +269,11 @@ var clearTxt = function clearTxt() {
 						</select>
 					<label class="teal-text text-lighten-2">Supervisor's name</label>
 			  </div>
-		  <div class="row">
-				<div class="input-field col s12">
-			 	  <i class="material-icons prefix">card_membership</i>
-				  <input id="txtLicenseNo" type="text" class="validate" required="">
-				  <label for="txtLicenseNo" class="teal-text text-lighten-2">Supervisor's License Number</label>
-				  <span class="helper-text"></span>
-				</div>
+		  <div class="input-field col s12 m6">
+					<i class="material-icons prefix">card_membership</i>
+						<select class="icons" id="selLicenceNo">
+						</select>
+					<label class="teal-text text-lighten-2">Supervisor's Licence Number</label>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
@@ -215,7 +304,7 @@ var clearTxt = function clearTxt() {
 				  <label for="txtStartTime" class="teal-text text-lighten-2">Start time</label>
 				</div>
 			  </div>
-			  <div class="row">
+			 <!-- <div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">av_timer</i>
 				  <input id="txtFinishTime" type="text" class="timepicker">
@@ -228,63 +317,13 @@ var clearTxt = function clearTxt() {
 				  <input id="txtTime" type="text" class="validate">
 				  <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
 				</div>
-			  </div>
+			  </div>-->
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<img src="../images/icons8-png/icons8-odomètre-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdom" type="text" class="validate">
+				  <input id="txtOdom" type="text" class="validate txtOdometer">
 				  <label for="txtOdom" class="teal-text text-lighten-2">Odometer Before Driving</label>
 				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdomAfter" type="text" class="validate">
-				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
-				</div>
-			  </div>
-			   <div class="row">
-				<div class="input-field col s12">
-			 	  <i class="material-icons prefix">directions_car</i>
-				  <input id="txtParking" type="text" class="validate" required="">
-				  <label for="txtParking" class="teal-text text-lighten-2">Parking</label>
-				  <span class="helper-text"></span>
-				</div>
-			  </div>
-			  <div class="input-field col s12 m6">
-   				<i class="material-icons prefix">wb_sunny</i>
-    			<select class="icons">
-      				<option value="" disabled selected>Choose your option</option>
-      				<option value="Day">Day</option>
-      				<option value="Night">Night</option>
-      				<option value="Day and Night">Day and Night</option>
-   	 			</select>
-    		<label class="teal-text text-lighten-2">Light</label>
-  			</div>
-  			<div class="input-field col s12">
-  			<img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				<select multiple>
-				  <option value="" disabled selected>Choose your options</option>
-				  <optgroup label="Traffic">
-					  <option value="Light">Light</option>
-					  <option value="Moderate">Moderate</option>
-					  <option value="Heavy">Heavy</option>
-				  </optgroup>
-				  <optgroup label="Weather">
-					  <option value="Dry">Dry</option>
-					  <option value="Wet">Wet</option>
-				  </optgroup>
-				  <optgroup label="Road">
-					  <option value="Local Street">Local Street</option>
-					  <option value="Main Road">Main Road</option>
-					  <option value="Inner City">Inner City</option>
-					  <option value="Freeway">Freeway</option>
-					  <option value="Rural Hwy">Rural Hwy</option>
-					  <option value="Rural Other">Rural Other</option>
-					  <option value="Gravel">Gravel</option>
-				  </optgroup>
-				</select>
-				<label class="teal-text text-lighten-2">Conditions</label>
 			  </div>
 			  <div class="row">
 				  <div class="input-field col s12">
@@ -298,7 +337,7 @@ var clearTxt = function clearTxt() {
 			  <div class="input-field col s12">
 			  <div class="right">
 			  	<button class="waves-effect waves-light btn" type="reset" id="resetButton">Reset</button>
-			  	<button class="btn waves-effect waves-light red accent-4" type="submit" name="action">Submit
+			  	<button class="btn waves-effect waves-light red accent-4" type="button" name="action" id="submitForm">Submit
     				<i class="material-icons right">send</i>
   				</button>
   			  </div>

@@ -18,16 +18,36 @@
 
 <script>
 //Select values from other tables
-var selectProfileTable = "SELECT tblProfile FROM Log Book WHERE type = 'table';";
+//var selectProfileTable = "SELECT tblProfile FROM Log Book WHERE type = 'table';";
+var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
+var selectAllRecordProfile =  "SELECT * FROM tblProfile;";
+//Insert Values
+var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
 	
 $(document).ready(function(){
 	document.addEventListener("deviceready", onDeviceReady(), false);
+	
 	//NavBar
     $('.sidenav').sidenav();
 	//Floating button +
 	$('.fixed-action-btn').floatingActionButton();
 	//Tooltip
 	$('.tooltipped').tooltip();
+	//Modal
+	$('.modal').modal();
+	//DatePickers
+	$('.datepicker').datepicker();
+	//var d = new Date();
+	/*d.setFullYear( d.getFullYear() - 100 );
+	$('.datepicker').pickadate( {
+   		selectMonths: true,
+   		selectYears: d,
+   		max: new Date()
+   });*/
+	//Save profile
+	$("#saveProfile").on("click", function() {
+		insertRecord();
+	});
 	//Gauge
 	$(".demo").kumaGauge({
   		// dynamic value-up<a href="https://www.jqueryscript.net/time-clock/">date</a>. just for sample.
@@ -138,15 +158,85 @@ var onDeviceReady = function() {
 	
 var populateDB = function(trans) {
   db.transaction(function(trans) {
-	  //trans.executeSql(createTableSQL,[]);
-	  trans.executeSql(selectProfileTable,[]);
-
-	  //db.transaction(showRecords);
+	  trans.executeSql(selectOtherTable,[]);
+	  db.transaction(showRecords);
 	 
 	 //trans.executeSql(dropTable,[]);
 	  console.log("profile table chosen");
   }); // end of transaction
 };
+	
+var showRecords = function() {
+	db.transaction(function(trans){
+		console.log("in showRecords")
+		
+		trans.executeSql("SELECT * FROM tblProfile;",[], function(trans, result) {
+		 //console.log(result);
+		  	if(result.rows.length == 0) {
+				console.log("in modal2")
+				//Modal
+				$("#modal1").modal('open');
+		 	} else {
+				trans.executeSql("SELECT * FROM tblSession;",[], function(trans, result) {
+					var output = "";
+					console.log("in output");
+			 		var noOfRecs = result.rows.length;
+					for(var i = 0; i < noOfRecs; i++) {
+						var row = result.rows.item(i);
+						output += "<div class='col s12 m7 cards'>";
+						output += "<a href='html/sessions.html?ID=" + row['fldLogNo'] + "'>";
+	  					output += "<div class='card horizontal'>";
+			  			output += "<div class='card-stacked'>";
+						output += "<div class='card-content'>";
+				 		output += "<span class='card-title'><strong>Session " + row['fldLogNo'] + "</strong></span>";
+						output += "<div class='card_icon'><i class='material-icons left'>event</i> " + row['fldDate'] + " </div>";
+						output += "<div class='card_icon'><i class='material-icons left'>people</i>Supervisor: " + row['fldSupervisorName'] + " </div>";
+						//console.log(output);
+						if(trans.executeSql("SELECT fldDrivingTime FROM tblSession;") == null) {
+							console.log("no values");
+							output += "<p>This session is not finished yet - Click to edit it</p>";
+							console.log(output);
+						} else {
+							console.log("in values");
+							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>2 hours</div>";
+							output += "<div class='card_icon'><i class='material-icons left'>brightness_4</i>Day/Night</div>";
+							console.log(output);
+						}
+						output += "</div></div></div></a></div>";
+						//console.log(output);
+					}
+					console.log(output);
+					$("#cardSession").append(output);
+					//console.log($("cardSession").val());
+				});
+				//console.log(output);
+				//$("cardSession").append(output);
+				//console.log(output);
+		 	}
+			//$("cardSession").append(output);
+	  	});
+	});
+}
+
+var insertRecord = function() {
+  console.log("In insertRecord");
+
+  var newName = $("#txtName").val();
+  var newBirthDate = $("#birthDate").val();
+  var newLicenceNo = $("#licenceNo").val();
+  var newPermitDate = $("#permitDate").val();
+  var newPhoneNo = $("#phoneNo").val();
+
+  console.log( "New Supervisor: " + newName );
+    db.transaction(function(trans) {
+      trans.executeSql(insertSQL, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo], onError);
+    });
+	location.reload();
+	
+	$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
+    clearTxt();
+    return true;
+}
 	
 var onError = function(err) {
 	var str = "";
@@ -199,52 +289,64 @@ var clearTxt = function clearTxt() {
 <h5 class="center">Progression</h5>
 <div class="js-gauge demo gauge center"></div>
 <hr class="style13">
-<!--Cards-->
-	<div class="col s12 m7 cards">
-		<a href="html/sessions.html">
-	  		<div class="card horizontal">
-			  <div class="card-stacked">
-				<div class="card-content">
-				 <span class="card-title"><strong>Session</strong></span>
-					<div class="card_icon"><i class="material-icons left">event</i>15/04/2018 Saturday</div>
-					<div class="card_icon"><i class="material-icons left">people</i>Supervisor: Alan Parish</div>
-					<div class="card_icon"><i class="material-icons left">access_time</i>2 hours</div>
-					<div class="card_icon"><i class="material-icons left">brightness_4</i>Day/Night</div>
-				</div>
-			  </div>
-	   		</div>
-		</a>
-	</div>	
-	  <div class="col s12 m7 cards">
-			<a href="html/sessions.html">
-				<div class="card horizontal">
-				  <div class="card-stacked">
-					<div class="card-content">
-					 <span class="card-title"><strong>Session</strong></span>
-						<div class="card_icon"><i class="material-icons left ">event</i>14/04/2018 Saturday</div>
-						<div class="card_icon"><i class="material-icons left">people</i>Supervisor: Alan Parish</div>
-						<div class="card_icon"><i class="material-icons left">access_time</i>1 hour</div>
-						<div class="card_icon"><i class="material-icons left">brightness_5</i>Day</div>
+
+<!-- Modal1 Structure -->
+<div id="modal1" class="modal">
+	<div class="modal-content">
+			<span class="card-title">Supervisor</span>
+				<div class="row">
+					<form class="col s12" id="addSupervisor" method="get">
+						  <div class="row">
+								<div class="input-field col s12">
+							  		<input id="txtName" type="text" class="validate" >
+							  		<label for="txtName">Name</label>
+							  		<p class="msg"></p>
+								</div>
+						  	</div>
+						  	<div class="row">
+								<div class="input-field col s12">
+									<input id="birthDate" type="text" class="datepicker">
+									<label for="birthDate">Birthdate</label>
+									<p class="msg"></p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+								  <input id="licenceNo" type="text" class="validate">
+								  <label for="licenceNo">Licence Number</label>
+								  <p class="msg"></p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="permitDate" type="text" class="datepicker">
+									<label for="permitDate">Permit Date</label>
+									<p class="msg"></p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="phoneNo" type="text" class="validate">
+									<label for="phoneNo">Phone Number</label>
+									<p class="msg"></p>
+								</div>
+							</div>
+						</form>
 					</div>
-				  </div>
 				</div>
-			</a>
-		</div>	
-	<div class="col s12 m7 cards">
-		<a href="html/sessions.html">
-	  		<div class="card horizontal">
-			  <div class="card-stacked">
-				<div class="card-content">
-				 <span class="card-title"><strong>Session</strong></span>
-					<div class="card_icon"><i class="material-icons left ">event</i>13/04/2018 Saturday</div>
-					<div class="card_icon"><i class="material-icons left">people</i>Supervisor: Melanie Crook</div>
-					<div class="card_icon"><i class="material-icons left">access_time</i>30 minutes</div>
-					<div class="card_icon"><i class="material-icons left">brightness_3</i>Night</div>
-				</div>
-			  </div>
+				<div class="col s12">
+					<button class="waves-effect waves-light btn modalBtn" type="reset" id="resetButton">Cancel</button>
+					<button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="saveProfile">Save
+						<i class="material-icons right">send</i>
+					</button>
+  				</div> 
 			</div>
-		</a>
-	</div>	
+		</div>
+<!--Cards-->
+<div id="cardSession">
+	
+</div>
+<!--	<div class="col s12 m7 cards">-->
 	<div class="fixed-action-btn">
 	  <a class="btn-floating btn-large red marginButton">
 		<i class=" large material-icons">mode_edit</i>
@@ -254,6 +356,6 @@ var clearTxt = function clearTxt() {
 		<li><a class="btn-floating blue btn tooltipped" data-position="left" data-tooltip="Add" href="html/drivingLog.html"><i class="material-icons">add</i></a></li>
 	  </ul>
 	</div>	
-</div>
+<!--</div>-->
 </body>
 </html>

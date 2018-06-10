@@ -16,7 +16,11 @@
 <!-- Signature plugin -->
 <script src="../Plugins/jSignature/jSignature.min.js"></script>
 <script>
+var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 $(document).ready(function(){
+	document.addEventListener("deviceready", onDeviceReady(), false);
+	var id = getUrlVars()["ID"];
+	//console.log(id);
 //Hide button
 	/*$("#saveInfo").hide();
 	$("#resetBtn").hide();
@@ -44,10 +48,21 @@ $(document).ready(function(){
 		$("#clearSignature").removeClass("hiddendiv");
 		
 		
-		$("input").each(function() {
+		/*$("input").each(function() {
 			$("input").prop("disabled",false);
 			$("select").prop("disabled",false);
+		});*/
+		
+		$("#txtFinishTime").prop("disabled",false);
+		$("#txtTime").prop("disabled",false);
+		$("#txtOdomAfter").prop("disabled",false);
+		$("input").each(function() {
+			$("select").prop("disabled",false);
 		});
+		
+		//$("select #txtLight").prop("disabled",false);
+		//$("select #selConditions").prop("disabled",false);
+		$("type[radio]").prop("disabled",false);
 	});
 	
 //Save Button
@@ -62,8 +77,115 @@ $(document).ready(function(){
 			$("select").prop("disabled",true);
 		});
 	});
-
 });		
+	
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		vars[key] = value;
+	});
+	return vars;
+}
+	
+var onDeviceReady = function() {
+  console.log("In deviceready");
+  try {
+    if( !window.openDatabase )
+      alert("This device does NOT support databases");
+    else {
+      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      console.log("Database opened");
+      db.transaction(populateDB, onError);
+    } // end else
+  }
+  catch(err) {
+    console.log("Error: " + err);
+  }
+};
+	
+var populateDB = function(trans) {
+  db.transaction(function(trans) {
+	  trans.executeSql(selectOtherTable,[]);
+
+	  db.transaction(showRecords);
+	 
+	 //trans.executeSql(dropTable,[]);
+	  console.log("Table created");
+  }); // end of transaction
+};
+	
+var showRecords = function() {
+  console.log("In show records");
+  db.transaction(function(trans) {
+	  //console.log(selectAllRecordSupervisor);
+	  trans.executeSql( "SELECT * FROM tblSession;",[], function(trans, result) {
+      	var str = "";
+		var id = getUrlVars()["ID"];
+		console.log(result);
+      	
+      if( result.rows.length == 0 ) {
+		  str += "You need to create a session first.";
+      } else {
+		//$("#divName").addClass("hiddendiv");
+		//$("#selName").removeClass("hiddendiv");
+        var noOfRecs = result.rows.length;
+		var output = "";
+		var outputLicenceNo= ""; 
+		  
+        for(var i = 0; i < noOfRecs; i++) {
+          //saving row to a variable
+				var row = result.rows.item(i);
+			if(row['fldLogNo'] == id) {
+				console.log("in id");
+				$("#txtSupervisor").val(row['fldSupervisorName']);
+				$("#txtLicenseNo").val(row['fldLicenceNo']);
+				$("#txtRegNo").val(row['fldCarRego']);
+				$("#txtDate").val(row['fldDate']);
+				$("#txtStartTime").val(row['fldStartTime']);
+				//$("#txtFinishTime").val(row['fldStartTime']);
+				$("#txtOdom").val(row['fldOdometerStart']);
+				M.updateTextFields();
+			}
+			if(trans.executeSql("SELECT * FROM tblSession;") != null) {
+				$("#txtFinishTime").val(row['fldStartTime']);
+				$("#txtTime").val(row['fldDrivingTime']);
+				$("#txtOdomAfter").val(row['fldOdometerFinish']);
+				
+				$("#txtLight").val("<option value='" + rowName['fldLight'] + "'>" + rowName['fldLight'] + "</option>");
+			}
+        }
+        console.log("Info Added");
+      } // end else
+    });
+  });
+};
+	
+var onError = function(err) {
+	var str = "";
+	switch(err.code)	{
+		case	0:  str += "Non database error: " + err.message;
+					break;
+		case	1:	str += "Some database error: " + err.message;
+					break;
+		case	2:	str += "Wrong database version: " + err.message;
+					break;
+		case	3:	str += "Data set too large to return from query: " + err.message;
+					break;
+		case	4: 	str += "Storage limit exceeded: " + err.message;
+					break;
+		case	5:	str += "Lock contension error: " + err.message;
+					break;
+		case	6:	str += "Constraint failure: " + err.message;
+					break;
+		default	:	str += "Error: " + err.code + " " + err.message;
+					break;
+	}
+	console.log(str);
+}
+
+var clearTxt = function clearTxt() {
+  setTimeout(function(){$(".msg").html("");}, 1000);
+}
 </script>
 <title>LogBook</title>
 </head>
@@ -82,17 +204,24 @@ $(document).ready(function(){
  <h1 align="center">Your session information</h1>
 <div class="row">
 	<form class="col s12">
-	  	  <div class="input-field col s12 m6 ">
+	  	  <!--<div class="input-field col s12 m6 ">
    				<i class="material-icons prefix">people</i>
     			<select class="icons" disabled>
       				<option value="" selected>Alan Parish</option>
    	 			</select>
     			<label class="teal-text text-lighten-2">Supervisor's name</label>
-  		  </div>
+  		  </div>-->
+  		  <div class="row">
+				<div class="input-field col s12">
+			  		<i class="material-icons prefix">people</i>
+				  <input id="txtSupervisor" type="text" disabled class="validate">
+				  <label for="txtSupervisor" class="teal-text text-lighten-2">Supervisor's Name</label>
+				</div>
+			</div>
 		  <div class="row">
 				<div class="input-field col s12">
 			 	  <i class="material-icons prefix">card_membership</i>
-				  <input id="txtLicenseNo" disabled value="875965412" type="text" class="validate">
+				  <input id="txtLicenseNo" disabled type="text" class="validate">
 				  <label for="txtLicenseNo" class="teal-text text-lighten-2">Supervisor's License Number</label>
 				  <span class="helper-text" data-error="Your license Number must contain 9 digits" data-success="Correct"></span>
 				</div>
@@ -100,7 +229,7 @@ $(document).ready(function(){
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">directions_car</i>
-				  <input id="txtRegNo" type="text" disabled value="XY8741" class="validate">
+				  <input id="txtRegNo" type="text" disabled class="validate">
 				  <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
 				</div>
 			</div>
@@ -115,49 +244,49 @@ $(document).ready(function(){
 			<div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">event</i>
-				  <input id="txtDate" type="text" disabled value="15/04/2018" class="datepicker">
+				  <input id="txtDate" type="text" disabled class="datepicker">
 				  <label for="txtDate" class="teal-text text-lighten-2">Date</label>
 				</div>
 			</div>
 			  <div class="row">
 				<div class="input-field col s12">
 			 		<i class="material-icons prefix">access_time</i>
-				  <input id="txtStartTime" type="text" disabled value="08:00 AM" class="timepicker">
+				  <input id="txtStartTime" type="text" disabled class="timepicker">
 				  <label for="txtStartTime" class="teal-text text-lighten-2">Start time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<i class="material-icons prefix">av_timer</i>
-				  <input id="txtFinishTime" type="text" disabled value="09:00 AM" class="timepicker">
+				  <input id="txtFinishTime" type="text" disabled class="timepicker">
 				  <label for="txtFinishTime" class="teal-text text-lighten-2">Finish time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<img src="../images/icons8-png/icons8-au-volant-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtTime" type="text" disabled value="1 hour" class="validate">
+				  <input id="txtTime" type="text" disabled class="validate">
 				  <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<img src="../images/icons8-png/icons8-odomètre-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdom" type="text" disabled value="23456" class="validate">
+				  <input id="txtOdom" type="text" disabled class="validate">
 				  <label for="txtOdom" class="teal-text text-lighten-2">Odometer Before Driving</label>
 				</div>
 			  </div>
 			  <div class="row">
 				<div class="input-field col s12">
 			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdomAfter" type="text" disabled value="23490" class="validate">
+				  <input id="txtOdomAfter" type="text" disabled class="validate">
 				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
 				</div>
 			  </div>
 			  <div class="input-field col s12 m6">
    				<i class="material-icons prefix">wb_sunny</i>
-    			<select disabled class="icons">
-      				<option value="" disabled selected>Choose your option</option>
+    			<select id="txtlight" disabled class="icons">
+      				<option value="" selected>Choose your option</option>
       				<option value="Day" selected="true">Day</option>
       				<option value="Night">Night</option>
       				<option value="Day and Night">Day and Night</option>
@@ -166,20 +295,20 @@ $(document).ready(function(){
   			</div>
   			<div class="input-field col s12">
   			<img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				<select disabled multiple>
-				  <option value="" disabled>Choose your options</option>
+				<select id="selConditions" disabled multiple>
+				  <option value="" selected>Choose your options</option>
 				  <optgroup label="Traffic">
 					  <option value="Light">Light</option>
-					  <option value="Moderate" selected="true">Moderate</option>
+					  <option value="Moderate">Moderate</option>
 					  <option value="Heavy">Heavy</option>
 				  </optgroup>
 				  <optgroup label="Weather">
-					  <option value="Dry" selected="true">Dry</option>
+					  <option value="Dry">Dry</option>
 					  <option value="Wet">Wet</option>
 				  </optgroup>
 				  <optgroup label="Road">
 					  <option value="Local Street">Local Street</option>
-					  <option value="Main Road" selected="true">Main Road</option>
+					  <option value="Main Road">Main Road</option>
 					  <option value="Inner City">Inner City</option>
 					  <option value="Freeway">Freeway</option>
 					  <option value="Rural Hwy">Rural Hwy</option>
@@ -190,6 +319,22 @@ $(document).ready(function(){
 				<label class="teal-text text-lighten-2">Conditions</label>
 			  </div>
 			  <div class="row">
+				<div class="input-field col s12">
+        			<p>
+						<img src="../images/icons8-png/icons8-parking-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
+						<label for="radParkingYes" class="teal-text text-lighten-2">Parking</label>
+						<label> 
+							<input id="radParkingYes" name="radParking" type="radio" class="with-gap" disabled checked />
+							<span>Yes</span>
+						</label>
+						<label> 
+							<input id="radParkingNo" name="radParking" type="radio" class="with-gap" disabled/>
+							<span>No</span>
+						</label>
+					</p>
+				</div>
+			  </div>
+			  <!--<div class="row">
 				  <div class="input-field col s12">
 					<p class="teal-text text-lighten-2">Signature</p>
 					<div id="signature"></div>
@@ -197,7 +342,7 @@ $(document).ready(function(){
 			  			<button class="waves-effect waves-light btn clearButton hiddendiv" type="button" id="clearSignature">Clear</button>
 			  		</p>
 				  </div>
-			  </div>
+			  </div>-->
 			  </form>
 			  <div class="input-field col s12">
 				  <div class="right">
