@@ -18,6 +18,10 @@
 <script>
 var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 var insertSQL = "INSERT INTO tblSession (fldFinishTime, fldDrivingTime, fldOdometerFinish, fldLight, fldConditions, fldParking) VALUES (?, ?, ?, ?, ?,?);";
+
+var id = getUrlVars()["ID"];
+var updateRecordSQL = "UPDATE tblSession SET fldFinishTime=?, fldDrivingTime=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo=" + id +";";
+console.log(updateRecordSQL);
 $(document).ready(function(){
 	document.addEventListener("deviceready", onDeviceReady(), false);
 	var id = getUrlVars()["ID"];
@@ -125,7 +129,7 @@ var showRecords = function() {
 	  //console.log(selectAllRecordSupervisor);
 	  trans.executeSql( "SELECT * FROM tblSession;",[], function(trans, result) {
       	var str = "";
-		var id = getUrlVars()["ID"];
+		
 		console.log(result);
       	
       if( result.rows.length == 0 ) {
@@ -151,13 +155,42 @@ var showRecords = function() {
 				$("#txtOdom").val(row['fldOdometerStart']);
 				M.updateTextFields();
 			}
-			if(trans.executeSql("SELECT * FROM tblSession;") != null) {
+			if(row['fldFinishTime'] != null && row['fldLogNo'] == id) {
 				$("#txtFinishTime").val(row['fldStartTime']);
-				$("#txtTime").val(row['fldDrivingTime']);
+				$("#txtFinishTime").attr("disabled", true);
+				var drivingTime = row['fldDrivingTime'].substring(0,2)
+				$("#txtTime").val(drivingTime + " minutes");
+				$("#txtTime").attr("disabled", true);
 				$("#txtOdomAfter").val(row['fldOdometerFinish']);
+				$("#txtOdomAfter").attr("disabled", true);
 				
-				$("#txtLight").val("<option value='" + rowName['fldLight'] + "'>" + rowName['fldLight'] + "</option>");
+				$("#divLight").attr("hidden", true);
+				var output = "<option value='" + row['fldLight'] + "' selected disabled>" + row['fldLight'] + "</option>";
+				//output += "<label for='txtLight2' class='teal-text text-lighten-2'>Light</label>";
+				$("#txtLight2").html(output);
+				$("#divLight2").attr("hidden", false);
+				$("#txtLight2").attr("disabled", true);
+				$("select").formSelect();
+				
+				$("#divCondition").attr("hidden", true);
+				var outputCondition = "<img src='../images/icons8-png/icons8-route-filled-50.png' class='prefix' style='width: 24px; height: 24px;'>";
+				outputCondition += "<input disable type='text' value='" + row['fldConditions'] + "' id='txtConditions2'></input>";
+				outputCondition += "<label for='txtConditions2' class='teal-text text-lighten-2'>Conditions</label>";
+				$("#divCondition2").html(outputCondition);
+				$("#divCondition2").attr("hidden", false);
+				$("#txtConditions2").attr("disabled", true);
+				
+				$("#divParking").attr("hidden", true);
+				var outputParking = "<img src='../images/icons8-png/icons8-parking-filled-50.png' class='prefix' style='width: 24px; height: 24px;'>";
+				outputParking += "<input disable type='text' value='" + row['fldParking'] + "' id='txtParking2'></input>";
+				outputParking += "<label for='txtParking2' class='teal-text text-lighten-2'>Parking</label>";
+				$("#divParking2").html(outputParking);
+				$("#divParking2").attr("hidden", false);
+				$("#txtParking2").attr("disabled", true);
+				
+				M.updateTextFields();
 			}
+
         }
         console.log("Info Added");
       } // end else
@@ -167,35 +200,42 @@ var showRecords = function() {
 	
 var insertRecord = function() {
   console.log("In insertRecord");
-  /*var logId = 0;
-	logId =+ 1;
-	console.log(logId);*/
-  //var newName = $("#txtProfileName").val();
-  //var newLogId = $("#txtId").val(logId);
-  var newFinishTime = $("#txtFinishTime").val();
-  var newLight = $("#txtLight option:selected").val();
-	var newConditions = "";
+	    db.transaction(function(trans) {
+			var newDrivingTime = 0;
+			var newFinishTime = $("#txtFinishTime").val();
+			var newLight = $("#txtLight option:selected").val();
+			//var newConditions = "";
 	//$("#selConditions optgroup").each(function () {
 		//newConditions += $("#selConditions optgroup option:selected").val() + ", ";
 	//});
-  var newConditions = $("#selConditions").val();
-  var newOdometerFinish = $("#txtOdemeterAfter").val();
-  var newParking = $("input[name='radParking']:checked").val();
-  newConditions = newConditions.toString();
-  console.log( "New session: " + newLight, newConditions, newParking );
-    db.transaction(function(trans) {
-		var newDrivingTime = 0;
-		trans.executeSql(selectOtherTable, [], function(trans, result) {
-			var noOfRecs = result.rows.length;
-			for(var i = 0; i < noOfRecs; i++) {
-				var row = result.rows.length;
-				newDrivingTime = row['fldStartTime'] - row['fldFinishTime'];
-				console.log(newDrivingTime);
-				//newDrivingTime += 
-			}
-		});
-      //trans.executeSql(insertSQL, [newFinishTime, newOdometerFinish, newLight, newConditions, newParking], onError);
-    });
+  			var newConditions = $("#selConditions").val();
+  			var newOdometerFinish = $("#txtOdomAfter").val();
+  			var newParking = $("input[name='radParking']:checked").val();
+  			newConditions = newConditions.toString();
+			trans.executeSql("SELECT * FROM tblSession;", [], function(trans, result) {
+  
+				console.log( "New session 1: " + newFinishTime, newOdometerFinish, newLight, newConditions, newParking );
+				console.log("in driving time");
+				var noOfRecs = result.rows.length;
+
+				for(var i = 0; i < noOfRecs; i++) {
+					var row = result.rows.item(i);
+						if(row['fldLogNo'] == id) {
+						var startTime = row['fldStartTime'];
+						console.log(startTime);
+
+						var newStartTime = new Date().setHours(startTime.substring(0, 2), startTime.substring(3, 5), 0, 0);
+						var finishTime = new Date().setHours(newFinishTime.substring(0, 2), newFinishTime.substring(3, 5), 0, 0);
+
+						var newDrivingTime = Math.floor((finishTime - newStartTime) / 60000);
+							console.log(newDrivingTime);
+					}
+				}
+				trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions ], onError);
+				//console.log(trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions ]));
+			});
+			console.log("added to table");
+    	});
 	//location.reload();
 	
 	//console.log(newSupervisorName, newLicenceNo, newCarRego,newDate, newStartTime, newOdometerStart);
@@ -327,17 +367,23 @@ var clearTxt = function clearTxt() {
 				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
 				</div>
 			  </div>
-			  <div class="input-field col s12 m6">
+			  <div class="input-field col s12 m6" id="divLight">
    				<i class="material-icons prefix">wb_sunny</i>
     			<select id="txtLight" class="icons">
-      				<option value="" selected>Choose your option</option>
-      				<option value="Day" selected="true">Day</option>
+      				<option value="Choose your option" selected>Choose your option</option>
+      				<option value="Day">Day</option>
       				<option value="Night">Night</option>
       				<option value="Day and Night">Day and Night</option>
    	 			</select>
     		<label class="teal-text text-lighten-2">Light</label>
   			</div>
-  			<div class="input-field col s12">
+  			<div class="input-field col s12 m6" hidden="hidden" id="divLight2">
+  				<i class="material-icons prefix">wb_sunny</i>
+  				<select id="txtLight2" class="icons">
+   				</select>
+   				<label for="txtLight2" class="teal-text text-lighten-2">Light</label>
+  			</div>
+  			<div class="input-field col s12" id="divCondition">
   			<img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 				<select id="selConditions" multiple="multiple">
 				  <option value="" selected>Choose your options</option>
@@ -362,8 +408,10 @@ var clearTxt = function clearTxt() {
 				</select>
 				<label class="teal-text text-lighten-2">Conditions</label>
 			  </div>
+			  <div class="input-field col s12" id="divCondition2" hidden="hidden">
+			  </div>
 			  <div class="row">
-				<div class="input-field col s12">
+				<div class="input-field col s12" id="divParking">
         			<p>
 						<img src="../images/icons8-png/icons8-parking-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
 						<label for="radParkingYes" class="teal-text text-lighten-2">Parking</label>
@@ -377,6 +425,10 @@ var clearTxt = function clearTxt() {
 						</label>
 					</p>
 				</div>
+			  </div>
+			  <div class="row">
+			  	<div class="input-field col s12" id="divParking2">
+			  	</div>
 			  </div>
 			  <!--<div class="row">
 				  <div class="input-field col s12">

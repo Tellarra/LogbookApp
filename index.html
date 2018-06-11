@@ -24,7 +24,7 @@ var selectAllRecordProfile =  "SELECT * FROM tblProfile;";
 //Insert Values
 var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
 	
-$(document).ready(function(){
+$(document).ready(function() {
 	document.addEventListener("deviceready", onDeviceReady(), false);
 	
 	//NavBar
@@ -37,21 +37,69 @@ $(document).ready(function(){
 	$('.modal').modal();
 	//DatePickers
 	$('.datepicker').datepicker();
-	//var d = new Date();
-	/*d.setFullYear( d.getFullYear() - 100 );
-	$('.datepicker').pickadate( {
-   		selectMonths: true,
-   		selectYears: d,
-   		max: new Date()
-   });*/
 	//Save profile
+	
+	
 	$("#saveProfile").on("click", function() {
 		insertRecord();
 	});
+	
+	db.transaction(function(trans) {
+		trans.executeSql("SELECT * from tblSession;", [], function(trans, result) {
+			var noOfRecs = result.rows.length;
+			var allTimesDriving = 0;
+			for(var i = 0; i < noOfRecs; i++) {
+				var row = result.rows.item(i);
+				if(row['fldDrivingTime'] != null) {
+					currentTime = parseInt(row['fldDrivingTime']);
+					allTimesDriving += currentTime;
+					//allTime += row['fldDrivingTime'].substring(0,2);
+					console.log("1 " + allTimesDriving);
+				}
+			}
+			gaugeRecord(allTimesDriving);
+			console.log("2 " + allTimesDriving);
+		});
+	});
+	//console.log("3 " + allTimesDriving);
+	
+});
+	
+var onDeviceReady = function() {
+  console.log("In deviceready");
+  try {
+    if( !window.openDatabase )
+      alert("This device does NOT support databases");
+    else {
+      /*var shortName = "Sessions";
+      var version = "1";
+      var displayName = "Sessions";
+      var maxSize = 1024;*/
+      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      console.log("Database opened");
+      db.transaction(populateDB, onError);
+    } // end else
+  }
+  catch(err) {
+    console.log("Error: " + err);
+  }
+};
+	
+var populateDB = function(trans) {
+  db.transaction(function(trans) {
+	  trans.executeSql(selectOtherTable,[]);
+	  db.transaction(showRecords);
+	 
+	 //trans.executeSql(dropTable,[]);
+	  console.log("profile table chosen");
+  }); // end of transaction
+};
+
+function gaugeRecord(allTimesDriving) {
 	//Gauge
 	$(".demo").kumaGauge({
   		// dynamic value-up<a href="https://www.jqueryscript.net/time-clock/">date</a>. just for sample.
-  		value : Math.floor((Math.random() * 99) + 1),
+  		value : Math.floor((allTimesDriving * 100) / 7200),
 		// The radius of the arc
 		radius : 80, 
 
@@ -88,7 +136,7 @@ $(document).ready(function(){
 		max : 100, 
 
 		// The actual value of the gauge
-		value : 80, 
+		//value : 80, 
 
 		// The label that indicates the value
 		valueLabel : {
@@ -134,38 +182,7 @@ $(document).ready(function(){
 		  display : false, 
 		}
 	});
-});
-	
-var onDeviceReady = function() {
-  console.log("In deviceready");
-  try {
-    if( !window.openDatabase )
-      alert("This device does NOT support databases");
-    else {
-      /*var shortName = "Sessions";
-      var version = "1";
-      var displayName = "Sessions";
-      var maxSize = 1024;*/
-      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
-      console.log("Database opened");
-      db.transaction(populateDB, onError);
-    } // end else
-  }
-  catch(err) {
-    console.log("Error: " + err);
-  }
-};
-	
-var populateDB = function(trans) {
-  db.transaction(function(trans) {
-	  trans.executeSql(selectOtherTable,[]);
-	  db.transaction(showRecords);
-	 
-	 //trans.executeSql(dropTable,[]);
-	  console.log("profile table chosen");
-  }); // end of transaction
-};
-	
+}
 var showRecords = function() {
 	db.transaction(function(trans){
 		console.log("in showRecords")
@@ -183,6 +200,7 @@ var showRecords = function() {
 			 		var noOfRecs = result.rows.length;
 					for(var i = 0; i < noOfRecs; i++) {
 						var row = result.rows.item(i);
+						var id = row['fldLogNo'];
 						output += "<div class='col s12 m7 cards'>";
 						output += "<a href='html/sessions.html?ID=" + row['fldLogNo'] + "'>";
 	  					output += "<div class='card horizontal'>";
@@ -192,30 +210,26 @@ var showRecords = function() {
 						output += "<div class='card_icon'><i class='material-icons left'>event</i> " + row['fldDate'] + " </div>";
 						output += "<div class='card_icon'><i class='material-icons left'>people</i>Supervisor: " + row['fldSupervisorName'] + " </div>";
 						//console.log(output);
-						if(trans.executeSql("SELECT fldDrivingTime FROM tblSession;") == null) {
+						console.log(row['fldDrivingTime']);
+						console.log(row['fldLogNo'] + " Will go in if ");
+						console.log(trans.executeSql("SELECT fldDrivingTime FROM tblSession;"));
+						if(row['fldDrivingTime'] == null) {
 							console.log("no values");
 							output += "<p>This session is not finished yet - Click to edit it</p>";
-							console.log(output);
+							//console.log(output);
 						} else {
-							var drivingTime = row['fldStartTime'] - row['fldFinishTime'];
-							console.log(drivingTime);
+							//var drivingTime = row['fldStartTime'] - row['fldFinishTime'];
+							//console.log(drivingTime);
 							console.log("in values");
-							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>2 hours</div>";
-							output += "<div class='card_icon'><i class='material-icons left'>brightness_4</i>Day/Night</div>";
-							console.log(output);
+							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>" + row['fldDrivingTime'].substr(0,2) + " minutes</div>";
+							output += "<div class='card_icon'><i class='material-icons left'>brightness_4</i>" + row['fldLight'] + "</div>";
+							//console.log(output);
 						}
 						output += "</div></div></div></a></div>";
-						//console.log(output);
 					}
-					console.log(output);
 					$("#cardSession").append(output);
-					//console.log($("cardSession").val());
 				});
-				//console.log(output);
-				//$("cardSession").append(output);
-				//console.log(output);
 		 	}
-			//$("cardSession").append(output);
 	  	});
 	});
 }
@@ -229,7 +243,7 @@ var insertRecord = function() {
   var newPermitDate = $("#permitDate").val();
   var newPhoneNo = $("#phoneNo").val();
 
-  console.log( "New Supervisor: " + newName );
+  console.log("New Supervisor: " + newName );
     db.transaction(function(trans) {
       trans.executeSql(insertSQL, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo], onError);
     });
@@ -264,7 +278,7 @@ var onError = function(err) {
 }
 
 var clearTxt = function clearTxt() {
-  setTimeout(function(){$(".msg").html("");}, 1000);
+  setTimeout(function() { $(".msg").html(""); }, 1000);
 }
 </script>
 </head>
