@@ -20,13 +20,15 @@ var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 var insertSQL = "INSERT INTO tblSession (fldFinishTime, fldDrivingTime, fldOdometerFinish, fldLight, fldConditions, fldParking) VALUES (?, ?, ?, ?, ?,?);";
 
 var id = getUrlVars()["ID"];
-var updateRecordSQL = "UPDATE tblSession SET fldFinishTime=?, fldDrivingTime=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo=" + id +";";
+var updateRecordSQL = "UPDATE tblSession SET fldFinishTime=?, fldDrivingTime=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=?, fldSignature=? WHERE fldLogNo=" + id +";";
+var updateRecordSQL2 = "UPDATE tblSession SET fldFinishTime=?, fldDrivingTime=?, fldOdometerFinish=?, fldParking=?, fldLight=?, fldConditions=? WHERE fldLogNo=" + id +";";
 console.log(updateRecordSQL);
 $(document).ready(function(){
 	document.addEventListener("deviceready", onDeviceReady(), false);
-	var id = getUrlVars()["ID"];
+	//var id = getUrlVars()["ID"];
 	//console.log(id);
 //Hide button
+	$("#editSessions").addClass("hiddendiv");
 	/*$("#saveInfo").hide();
 	$("#resetBtn").hide();
 	$("#clearSignature").hide();*/
@@ -55,36 +57,37 @@ $(document).ready(function(){
 		$("#resetBtn").removeClass("hiddendiv");
 		$("#clearSignature").removeClass("hiddendiv");
 		
+		$("#txtFinishTime").attr("disabled",false);
+		$("#txtOdomAfter").attr("disabled",false);
+		$("#divLight").attr("hidden",false);
+		$("#divLight2").attr("hidden",true);
+		$("#divCondition").attr("hidden",false);
+		$("#divCondition2").attr("hidden",true);
+		$("#divParking").attr("hidden", false);
+		$("#divParking2").attr("hidden", true);
+
+	});
+//Cancel
+	$("#resetBtn").on("click", function() {
+		$("#editSessions").removeClass("hiddendiv");
+		$("#saveInfo").addClass("hiddendiv");
+		$("#resetBtn").addClass("hiddendiv");
+		$("#clearSignature").addClass("hiddendiv");
 		
-		/*$("input").each(function() {
-			$("input").prop("disabled",false);
-			$("select").prop("disabled",false);
-		});*/
-		
-		/*$("#txtFinishTime").prop("disabled",false);
-		$("#txtTime").prop("disabled",false);
-		$("#txtOdomAfter").prop("disabled",false);*/
-		/*$("input").each(function() {
-			$("select").removeAttr("disabled",false);
-		});*/
-		
-		/*$("select #txtLight").prop("disabled",false);
-		$("select #selConditions").prop("disabled",false);
-		$("type[radio]").prop("disabled",false);*/
+		$("#txtFinishTime").attr("disabled",true);
+		$("#txtOdomAfter").attr("disabled",true);
+		$("#divLight").attr("hidden",true);
+		$("#divLight2").attr("hidden",false);
+		$("#divCondition").attr("hidden",true);
+		$("#divCondition2").attr("hidden",false);
+		$("#divParking").attr("hidden", true);
+		$("#divParking2").attr("hidden", false);
 	});
 	
 //Save Button
 	$("#saveInfo").on("click", function() {
 		insertRecord();
-		/*$("#editSessions").removeClass("hiddendiv");
-		$("#saveInfo").addClass("hiddendiv");
-		$("#resetBtn").addClass("hiddendiv");
-		$("#clearSignature").addClass("hiddendiv");
-		
-		$("input").each(function() {
-			$("input").prop("disabled",true);
-			$("select").prop("disabled",true);
-		});*/
+		//window.location.href="../index.html";
 	});
 });		
 	
@@ -102,7 +105,7 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      db = window.openDatabase("Log_Book", "1", "Log_Book", "1024");
       console.log("Database opened");
       db.transaction(populateDB, onError);
     } // end else
@@ -156,9 +159,14 @@ var showRecords = function() {
 				M.updateTextFields();
 			}
 			if(row['fldFinishTime'] != null && row['fldLogNo'] == id) {
-				$("#txtFinishTime").val(row['fldStartTime']);
+				$("h4").html("Your session " + row['fldLogNo'] + " information");
+				$("#editSessions").removeClass("hiddendiv");
+				$("#saveInfo").addClass("hiddendiv");
+				$("#resetBtn").addClass("hiddendiv");
+				
+				$("#txtFinishTime").val(row['fldFinishTime']);
 				$("#txtFinishTime").attr("disabled", true);
-				var drivingTime = row['fldDrivingTime'].substring(0,2)
+				var drivingTime = row['fldDrivingTime'].substring(0,1)
 				$("#txtTime").val(drivingTime + " minutes");
 				$("#txtTime").attr("disabled", true);
 				$("#txtOdomAfter").val(row['fldOdometerFinish']);
@@ -188,6 +196,7 @@ var showRecords = function() {
 				$("#divParking2").attr("hidden", false);
 				$("#txtParking2").attr("disabled", true);
 				
+				$("#signature").html(row['fldSignature']);
 				M.updateTextFields();
 			}
 
@@ -204,17 +213,16 @@ var insertRecord = function() {
 			var newDrivingTime = 0;
 			var newFinishTime = $("#txtFinishTime").val();
 			var newLight = $("#txtLight option:selected").val();
-			//var newConditions = "";
-	//$("#selConditions optgroup").each(function () {
-		//newConditions += $("#selConditions optgroup option:selected").val() + ", ";
-	//});
   			var newConditions = $("#selConditions").val();
   			var newOdometerFinish = $("#txtOdomAfter").val();
   			var newParking = $("input[name='radParking']:checked").val();
+			var datapair = $("#signature").jSignature("getData", "svgbase64");
+			
+			
   			newConditions = newConditions.toString();
 			trans.executeSql("SELECT * FROM tblSession;", [], function(trans, result) {
   
-				console.log( "New session 1: " + newFinishTime, newOdometerFinish, newLight, newConditions, newParking );
+				console.log( "New session 1: " + newFinishTime, newOdometerFinish, newLight, newConditions, newParking, xml);
 				console.log("in driving time");
 				var noOfRecs = result.rows.length;
 
@@ -230,8 +238,19 @@ var insertRecord = function() {
 						var newDrivingTime = Math.floor((finishTime - newStartTime) / 60000);
 							console.log(newDrivingTime);
 					}
+					
+					if(row['fldSignature'] == null) {
+						var i = new Image();
+						i.src = "data:" + datapair[0] + "," + datapair[1];
+						console.log(i);
+						var xml = (new XMLSerializer).serializeToString(i);
+						trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions, xml], onError);
+					} else {
+						trans.executeSql(updateRecordSQL2, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions], onError);
+					}
 				}
-				trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions ], onError);
+				
+				//trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions, xml], onError);
 				//console.log(trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions ]));
 			});
 			console.log("added to table");
@@ -285,7 +304,7 @@ var clearTxt = function clearTxt() {
       </ul>
     </div>
   </nav>
- <h1 align="center">Your session information</h1>
+ <h4 align="center">Your session information <br /></h4>
 <div class="row">
 	<form class="col s12">
 	  	  <!--<div class="input-field col s12 m6 ">
@@ -430,20 +449,17 @@ var clearTxt = function clearTxt() {
 			  	<div class="input-field col s12" id="divParking2">
 			  	</div>
 			  </div>
-			  <!--<div class="row">
+			  <div class="row">
 				  <div class="input-field col s12">
 					<p class="teal-text text-lighten-2">Signature</p>
 					<div id="signature"></div>
-					<p>
-			  			<button class="waves-effect waves-light btn clearButton hiddendiv" type="button" id="clearSignature">Clear</button>
-			  		</p>
 				  </div>
-			  </div>-->
+			  </div>
 			  </form>
 			  <div class="input-field col s12">
 				  <div class="right">
-					<button class="waves-effect waves-light btn clearButton" type="reset" id="resetBtn">Cancel</button>
-<!--					<button class="btn waves-effect waves-light right red accent-2" id="editSessions">Edit</button>-->
+					<button class="waves-effect waves-light btn" type="reset" id="resetBtn">Cancel</button>
+					<button class="btn waves-effect waves-light right red accent-2" hidden id="editSessions">Edit</button>
 					<button class="btn waves-effect waves-light red accent-4" type="submit" name="action" id="saveInfo">Submit
 						<i class="material-icons right">send</i>
 					</button>

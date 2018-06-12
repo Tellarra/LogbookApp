@@ -42,14 +42,7 @@ hr.style13 {
 	color: #424242;
 }
 
-#learnerSignature{
-	background-color: #939393;
-	width: 100%;
-	height: 30%;
-	color: aliceblue;
-}
-
-#supervisorSignature{
+#learnerSignature, #supervisorSignature, #signature {
 	background-color: #939393;
 	width: 100%;
 	height: 30%;

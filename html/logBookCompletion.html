@@ -16,13 +16,15 @@
 <!-- Signature plugin -->
 <script src="../Plugins/jSignature/jSignature.min.js"></script>
 <script src="../Plugins/validator/jquery.validate.js"></script>
-<!-- Validator plugin -->
 <script>
 //Create Database
 var showSQL = "SELECT * FROM tblSession;";
 var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
-var db = null;	
-	
+var db = null;
+
+//Set cloudinary
+$.cloudinary.config({ cloud_name: 'sample', secure: true});
+
 $(document).ready(function() {
 	document.addEventListener("deviceready", onDeviceReady(), false);
 	//NavBar
@@ -64,8 +66,22 @@ $(document).ready(function() {
 		$("#learnerSignature .btn").attr("hidden", true);
 		$("#supervisorSignature").attr("hidden", true);
 		$("#supervisorSignature .btn").attr("hidden", true);
-		$(learnerS).appendTo($("#divSignature1"));
-		$(supervisorS).appendTo($("#divSignature2"));
+		var xml = (new XMLSerializer).serializeToString(learnerS);
+		var xml = (new XMLSerializer).serializeToString(supervisorS);
+		
+		
+		//$(learnerS).appendTo($("#divSignature1"));
+		//$(supervisorS).appendTo($("#divSignature2"));
+		/*if($.fn.cloudinary_fileupload !== undefined) {
+			$(learnerS).cloudinary_fileupload( {
+				disableImageResize: false,
+				imageMaxWidth: 800,                   // 800 is an example value - no default
+    			imageMaxHeight: 600,                  // 600 is an example value - no default
+    			maxFileSize: 20000000,                // 20MB is an example value - no default
+    			loadImageMaxFileSize: 20000000,       // default is 10MB
+    			//acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i
+			});
+		}*/
 	});
 });
 	
@@ -75,7 +91,7 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      db = window.openDatabase("Log_Book", "1", "Log_Book", "1024");
       console.log("Database opened");
       db.transaction(populateDB, onError);
     } // end else
@@ -213,95 +229,79 @@ var clearTxt = function clearTxt() {
 
 <body>
 <div class="pages" id="page" data-theme="a" >
-<nav>
-    <div class="nav-wrapper">
-      <a href="#!" class="center brand-logo">Log Book</a>
-      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+  <nav>
+    <div class="nav-wrapper"> <a href="#!" class="center brand-logo">Log Book</a> <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
       <ul class="left hide-on-med-and-down">
         <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
       </ul>
     </div>
   </nav>
- <h1 align="center">LogBook Completion Document</h1>
- <input type="hidden" id="txtId">
-<div class="row">
-	<form method="get" id="formValidate" class="col s12">
- 		<div class="row">
-			<div class="input-field col s12">
-				<i class="material-icons prefix">person</i>
-				<input id="txtProfileName" type="text" value="" disabled>
-				<label for="txtProfileName" class="active teal-text text-lighten-2">Learner's Name</label>
-				<span class="helper-text" ></span>
-			</div>
-		</div>
- 		<div class="row">
-			<div class="input-field col s12">
-				<i class="material-icons prefix">card_membership</i>
-				<input id="txtLearnerLicence" type="text" value="" disabled>
-				<label for="txtLearnerLicence" class="active teal-text text-lighten-2">Learner's Licence No</label>
-				<span class="helper-text" ></span>
-			</div>
-		</div>
-  		<div class="row" id="divName">
-				<div  class="input-field col s12">
-			 	  <i class="material-icons prefix">card_membership</i>
-				  <input id="txtName" type="text" class="validate">
-				  <label for="txtName" class="active teal-text text-lighten-2">Supervisor's Name</label>
-				  <span class="helper-text" ></span>
-				</div>
-		</div>
-			  <div class="input-field col s12 m6">
-					<i class="material-icons prefix">people</i>
-						<select class="icons" id="selName">
-							
-						</select>
-					<label class="teal-text text-lighten-2">Supervisor's name</label>
-			  </div>
-		  <div class="input-field col s12 m6">
-					<i class="material-icons prefix">card_membership</i>
-						<select class="icons" id="selLicenceNo">
-						</select>
-					<label class="teal-text text-lighten-2">Supervisor's Licence Number</label>
-			  </div>
-			<div class="row">
-				<div class="input-field col s12">
-			  		<i class="material-icons prefix">event</i>
-				  <input id="txtDate" type="text" class="datepicker">
-				  <label for="txtDate" class="teal-text text-lighten-2">Date</label>
-				</div>
-			</div>
-			  <div class="row" id="divSignature1">
-				  <div class="input-field col s12">
-					<p class="teal-text text-lighten-2">Learner's Signature</p>
-					<div id="learnerSignature"></div>
-					<p>
-			  			<button class="waves-effect waves-light btn" type="button" id="clearButton1">Clear</button>
-			  		</p>
-				  </div>
-			  </div>
-			  
-			  <div class="row" id="divSignature2">
-				  <div class="input-field col s12">
-					<p class="teal-text text-lighten-2">Supervisor's Signature</p>
-					<div id="supervisorSignature"></div>
-					<p>
-			  			<button class="waves-effect waves-light btn" type="button" id="clearButton2">Clear</button>
-			  		</p>
-				  </div>
-			  </div>
-			  <div class="row" id="append1">
-			  </div>
-			  <div class="row" id="append2"></div>
-			  <div class="input-field col s12">
-			  <div class="right">
-			  	<button class="waves-effect waves-light btn" type="reset" id="resetButton">Reset</button>
-			  	<button class="btn waves-effect waves-light red accent-4" type="button" name="action" id="submitForm">Submit
-    				<i class="material-icons right">send</i>
-  				</button>
-  			  </div>
-  			  </div>
-			</form>
-		</div>
-	</div>
+  <h1 align="center">LogBook Completion Document</h1>
+  <input type="hidden" id="txtId">
+  <div class="row">
+    <form method="get" id="formValidate" class="col s12">
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">person</i>
+          <input id="txtProfileName" type="text" value="" disabled>
+          <label for="txtProfileName" class="active teal-text text-lighten-2">Learner's Name</label>
+          <span class="helper-text" ></span> </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">card_membership</i>
+          <input id="txtLearnerLicence" type="text" value="" disabled>
+          <label for="txtLearnerLicence" class="active teal-text text-lighten-2">Learner's Licence No</label>
+          <span class="helper-text" ></span> </div>
+      </div>
+      <div class="row" id="divName">
+        <div  class="input-field col s12"> <i class="material-icons prefix">card_membership</i>
+          <input id="txtName" type="text" class="validate">
+          <label for="txtName" class="active teal-text text-lighten-2">Supervisor's Name</label>
+          <span class="helper-text" ></span> </div>
+      </div>
+      <div class="input-field col s12 m6"> <i class="material-icons prefix">people</i>
+        <select class="icons" id="selName">
+        </select>
+        <label class="teal-text text-lighten-2">Supervisor's name</label>
+      </div>
+      <div class="input-field col s12 m6"> <i class="material-icons prefix">card_membership</i>
+        <select class="icons" id="selLicenceNo">
+        </select>
+        <label class="teal-text text-lighten-2">Supervisor's Licence Number</label>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">event</i>
+          <input id="txtDate" type="text" class="datepicker">
+          <label for="txtDate" class="teal-text text-lighten-2">Date</label>
+        </div>
+      </div>
+      <div class="row" id="divSignature1">
+        <div class="input-field col s12">
+          <p class="teal-text text-lighten-2">Learner's Signature</p>
+          <div id="learnerSignature"></div>
+          <p>
+            <button class="waves-effect waves-light btn" type="button" id="clearButton1">Clear</button>
+          </p>
+        </div>
+      </div>
+      <div class="row" id="divSignature2">
+        <div class="input-field col s12">
+          <p class="teal-text text-lighten-2">Supervisor's Signature</p>
+          <div id="supervisorSignature"></div>
+          <p>
+            <button class="waves-effect waves-light btn" type="button" id="clearButton2">Clear</button>
+          </p>
+        </div>
+      </div>
+      <div class="row" id="append1"> </div>
+      <div class="row" id="append2"></div>
+      <div class="input-field col s12">
+        <div class="right">
+          <button class="waves-effect waves-light btn" type="reset" id="resetButton">Reset</button>
+          <button class="btn waves-effect waves-light red accent-4" type="button" name="action" id="submitForm">Submit <i class="material-icons right">send</i> </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 </body>
 </html>

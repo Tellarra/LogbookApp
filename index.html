@@ -18,11 +18,14 @@
 
 <script>
 //Select values from other tables
-//var selectProfileTable = "SELECT tblProfile FROM Log Book WHERE type = 'table';";
+var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhoneNo TEXT, fldMinutesDone TEXT NULL);";
 var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 var selectAllRecordProfile =  "SELECT * FROM tblProfile;";
 //Insert Values
-var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
+var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhoneNo) VALUES (?, ?, ?, ?, ?);";
+var insertSQL2 = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhoneNo, fldMinutesDone) VALUES (?, ?, ?, ?, ?, ?);";
+var deleteSQL = "DELETE from tblSession WHERE fldLogNo=?;";
+var	deleteAllSQL = "DELETE from tblSession";
 	
 $(document).ready(function() {
 	document.addEventListener("deviceready", onDeviceReady(), false);
@@ -38,20 +41,37 @@ $(document).ready(function() {
 	//DatePickers
 	$('.datepicker').datepicker();
 	//Save profile
-	
-	
 	$("#saveProfile").on("click", function() {
 		insertRecord();
 	});
 	
+	$("#deleteRecords").on("click", function() {
+		deleteALLRecords();
+	});
+	
+	$("input[name='radHours']").change(function() {
+		if($("input[name='radHours']:checked").val() != "No") {
+				$("#divHours").removeClass("hiddendiv");
+		} else {
+			$("#divHours").addClass("hiddendiv");
+		}
+	});
+	
+	
 	db.transaction(function(trans) {
-		trans.executeSql("SELECT * from tblSession;", [], function(trans, result) {
+		trans.executeSql("SELECT * from tblSession, tblProfile;", [], function(trans, result) {
 			var noOfRecs = result.rows.length;
 			var allTimesDriving = 0;
 			for(var i = 0; i < noOfRecs; i++) {
 				var row = result.rows.item(i);
-				if(row['fldDrivingTime'] != null) {
-					currentTime = parseInt(row['fldDrivingTime']);
+				if(row['fldMinutesDone'] != null && row['fldDrivingTime'] != null) {
+					var currentTime = parseInt(row['fldMinutesDone']) + parseInt(row['fldDrivingTime']);
+					console.log("in minute done: " + currentTime);
+					allTimesDriving += currentTime;
+					console.log("in minute done: " + allTimesDriving);
+				}
+				if(row['fldDrivingTime'] != null && row['fldMinutesDone'] == null) {
+					var currentTime = parseInt(row['fldDrivingTime']);
 					allTimesDriving += currentTime;
 				}
 			}
@@ -59,7 +79,6 @@ $(document).ready(function() {
 			if(allTimesDriving >= 7800) {
 				$("#modal2").modal('open');
 			}
-			
 			gaugeRecord(allTimesDriving);
 		});
 	});
@@ -73,11 +92,11 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      /*var shortName = "Sessions";
+      var shortName = "Log_Book";
       var version = "1";
-      var displayName = "Sessions";
-      var maxSize = 1024;*/
-      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      var displayName = "Log_Book";
+      var maxSize = 1024;
+      db = window.openDatabase(shortName, version, displayName, maxSize);
       console.log("Database opened");
       db.transaction(populateDB, onError);
     } // end else
@@ -89,6 +108,7 @@ var onDeviceReady = function() {
 	
 var populateDB = function(trans) {
   db.transaction(function(trans) {
+	  trans.executeSql(createTableSQL,[], onError);
 	  trans.executeSql(selectOtherTable,[]);
 	  db.transaction(showRecords);
 	 
@@ -220,10 +240,11 @@ var showRecords = function() {
 							//var drivingTime = row['fldStartTime'] - row['fldFinishTime'];
 							//console.log(drivingTime);
 							console.log("in values");
-							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>" + row['fldDrivingTime'].substr(0,2) + " minutes</div>";
+							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>" + row['fldDrivingTime'].substr(0,3) + " minutes</div>";
 							output += "<div class='card_icon'><i class='material-icons left'>brightness_4</i>" + row['fldLight'] + "</div>";
 							//console.log(output);
 						}
+						output +="<button onClick='deleteRecord(\"" + row['fldLogNo'] + "\");' class='btn waves-effect waves-light right red'>Delete</button>";
 						output += "</div></div></div></a></div>";
 					}
 					$("#cardSession").append(output);
@@ -241,16 +262,65 @@ var insertRecord = function() {
   var newLicenceNo = $("#licenceNo").val();
   var newPermitDate = $("#permitDate").val();
   var newPhoneNo = $("#phoneNo").val();
+	var newHours = $("#txtHours").val();
 
-  console.log("New Supervisor: " + newName );
+  console.log("New Profile: " + newName + newBirthDate + newLicenceNo + newPermitDate + newPhoneNo + newHours );
     db.transaction(function(trans) {
-      trans.executeSql(insertSQL, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo], onError);
+		if($("input[name='radHours']:checked").val() == "No") {
+			console.log("save 1");
+			trans.executeSql(insertSQL, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo], onError);
+		} else {
+			console.log("save 2");
+			trans.executeSql(insertSQL2, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo, newHours], onError);
+			//console.log(trans.executeSql(insertSQL2, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo, newHours]));
+		}
     });
-	location.reload();
+	//location.reload();
 	
 	$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
     clearTxt();
     return true;
+}
+
+var deleteRecord = function(sessionNo)
+{
+	var q = confirm("Do you wish to delete this record");
+
+	if(q) {
+		db.transaction(function(trans) {
+			trans.executeSql(deleteSQL, [sessionNo], onError);
+		});
+		$(".msg").html("Record deleted");
+		location.reload();
+		//clearTxt();
+		return true;
+	} else {
+		$(".msg").html("Record NOT deleted");
+		location.reload();
+		//clearTxt();
+		return false;
+	}
+}
+
+var deleteALLRecords = function()
+{
+	var q = confirm("Do you wish to delete ALL records?");
+
+	if(q)
+	{
+		db.transaction(function(trans) {
+			trans.executeSql(deleteAllSQL, [], showRecords, onError);
+		});
+
+		$(".msg").html("All records deleted");
+		clearTxt();
+		return true;
+	}
+	else
+	{	$(".msg").html("All records NOT deleted");
+		clearTxt();
+		return false;
+	}
 }
 	
 var onError = function(err) {
@@ -316,20 +386,20 @@ var clearTxt = function clearTxt() {
 						<div class="input-field col s12" id="divParking">
         					<p> I have already started my 120 hours practice:<br /><br />
 							<label> 
-								<input id="radParkingYes" name="radParking" type="radio" value="Yes" class="with-gap" checked />
+								<input id="radHoursY" name="radHours" type="radio" value="Yes" class="with-gap"  />
 								<span>Yes</span>
 							</label>
 							<label> 
-								<input id="radParkingNo" name="radParking" type="radio" value="No" class="with-gap"/>
+								<input id="radHoursN" name="radHours" type="radio" value="No" class="with-gap" checked/>
 								<span>No</span>
 							</label>
 							</p>
 						</div>
 			  		  	</div>
 			  		  	<div class="row">
-							<div class="input-field col s12">
+							<div class="input-field col s12" id="divHours">
 							  	<input id="txtHours" type="text" class="validate" >
-							  	<label for="txtHours">Hours Done:</label>
+							  	<label for="txtHours">Hours Done (in minutes):</label>
 							  	<p class="msg"></p>
 							</div>
 						</div>
@@ -398,6 +468,7 @@ var clearTxt = function clearTxt() {
 		<i class=" large material-icons">mode_edit</i>
 	  </a>
 	  <ul>
+	  	<li><a class="btn-floating red btn tooltipped" data-position="left" data-tooltip="Delete All Record" id="deleteRecords"><i class="material-icons">delete</i></a></li>
 		<li><a class="btn-floating green btn tooltipped" data-position="left" data-tooltip="Filter"><i class="material-icons">filter_list</i></a></li>
 		<li><a class="btn-floating blue btn tooltipped" data-position="left" data-tooltip="Add" href="html/drivingLog.html"><i class="material-icons">add</i></a></li>
 	  </ul>

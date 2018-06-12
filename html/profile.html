@@ -12,20 +12,50 @@
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="../js/materialize.min.js"></script>
-<!-- Plugin listview -->
-<script src="../Plugins/jqmEditable/jqm.editable.listview.min.js"></script>
+<!-- API cloudinary plugin -->
+<script src="../Plugins/API/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
+<script src="../Plugins/API/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
+<!-- Validation image -->
+<script src="../Plugins/API/blueimp-load-image/js/load-image.all.min.js"></script>
+<script src="../Plugins/API/blueimp-canvas-to-blob/js/canvas-to-blob.js"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.fileupload-image.js" type="text/javascript"></script>
+<script src="../Plugins/API/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>
+<script src="../Plugins/API/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
 <script>
+//Cloud API
+//https:api.cloudinary.com/v1_1/logbook/file/upload;
+//var uploadCloud = $.cloudinary.config({ cloud_name: 'logbook', secure: true});
 //Create Database
-var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhone TEXT);";
+var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhoneNo TEXT);";
 var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
 var showSQL = "SELECT * FROM tblProfile;";
 var updateRecordSQL = "UPDATE tblProfile SET fldName=?, fldPhoneNo=? WHERE fldLicenceNo = ?;";
 var deleteSQL = "DELETE from tblProfile WHERE fldLicenceNo=?;";
+var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 var	deleteAllSQL = "DELETE from tblProfile";
 var dropTable = "DROP TABLE tblProfile";
 var db = null;
 $(document).ready(function(){
 	document.addEventListener("deviceready", onDeviceReady(), false);
+//Profile Picture
+	/*if($.fn.cloudinary_fileupload !== undefined) {
+    	$("input.cloudinary-fileupload[type=file]").cloudinary_fileupload( {
+			disableImageResize: false,
+			imageMaxWidth: 800,                   // 800 is an example value - no default
+			imageMaxHeight: 600,                  // 600 is an example value - no default
+			maxFileSize: 20000000,                // 20MB is an example value - no default
+			loadImageMaxFileSize: 20000000,       // default is 10MB
+			acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i
+		});
+  	}
+	var tag = $.cloudinary.imageTag("sample", { width: 400, crop: "pad"}).toHtml();
+	//tag.toHtml();
+	$("profilePicture").html(tag);*/
 //Hide button
 	$("#saveInfo").hide();
 //NavBar
@@ -69,6 +99,7 @@ $(document).ready(function(){
 
     $(".file-upload").on('change', function(){
         readURL(this);
+		
     });
     
     $(".upload-button").on('click', function() {
@@ -82,11 +113,7 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      /*var shortName = "Sessions";
-      var version = "1";
-      var displayName = "Sessions";
-      var maxSize = 1024;*/
-      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      db = window.openDatabase("Log_Book", "1", "Log_Book", "1024");
       console.log("Database opened");
       db.transaction(populateDB, onError);
     } // end else
@@ -98,10 +125,39 @@ var onDeviceReady = function() {
 
 var populateDB = function(trans) {
   db.transaction(function(trans) {
-	 trans.executeSql(createTableSQL,[]);
-	 //trans.executeSql(dropTable,[]);
-	  console.log("Table created");
+	 //trans.executeSql(createTableSQL,[]);
+	  trans.executeSql(selectOtherTable,[]);
+	  
+	  db.transaction(showRecords);
   }); // end of transaction
+};
+	
+var showRecords = function() {
+  console.log("In show records");
+  db.transaction(function(trans){
+    trans.executeSql(showSQL,[], function(trans, result) {
+      var str = "";
+
+      if( result.rows.length == 0 ) {
+        alert("You must create a profile first");
+      }
+      else {
+        var noOfRecs = result.rows.length;
+        for(var i = 0; i < noOfRecs; i++) {
+          // saving row to a variable
+          var row = result.rows.item(i);
+		  $("#txtName").val(row['fldName']);
+			$("#txtBirthdate").val(row['fldBirth']);
+			$("#permitNo").val(row['fldLicenceNo']);
+			$("#txtPermitDate").val(row['fldPermitDate']);
+			$("#txtPhone").val(row['fldPhoneNo']);
+        }
+        //$("#cardSup").append(str);
+        //console.log("Supervisor added to card");
+      } // end else
+		M.updateTextFields();
+    });
+  });
 };
 	
 var onError = function(err) {
@@ -153,7 +209,12 @@ var clearTxt = function clearTxt() {
 		<div class="upload-button center-block">Upload Image</div>
 	<input class="file-upload" type="file" accept="image/*"/>
  </p>
- <br />
+ <!--<p class="center-block" id="profilePicture"></p>
+ <input name="file" type="file" class="cloudinary-fileupload" 
+ 	data-cloudinary-field="profilePicture" 
+ 	data-form-data= "{ 'upload_preset': 'user_upload1',
+ 	'callback': 'file:///F:/Cours/Semester2/mobileApp/assignement/logbookApp/LogbookApp/html/profile.html'}"/>
+ <br />-->
  <div class="col s12 m7 cards">
     <div class="card horizontal">
       <div class="card-stacked">
@@ -163,32 +224,32 @@ var clearTxt = function clearTxt() {
 				<form class="col s12">
 						  <div class="row">
 								<div class="input-field col s12">
-							  		<input disabled value="Adele Richard" id="txtName" type="text" class="validate">
+							  		<input disabled id="txtName" type="text" class="validate">
 							  		<label for="txtName"> Name</label>
 								</div>
 						  </div>
 						  <div class="row">
 								<div class="input-field col s12">
-							  		<input disabled value="06/01/1995" id="txtBirthDate" type="text" class="datepicker">
-							  		<label for="txtBirthDate">Birthdate</label>
+							  		<input disabled id="txtBirthDate" type="text" class="datepicker">
+							  		<label for="txtBirthdate">Birthdate</label>
 								</div>
 						  </div>
 						  <div class="row">
 								<div class="input-field col s12">
-							  		<input disabled value="059874658" id="permitNo" type="number" class="validate" max="9" min="9">
+							  		<input disabled id="permitNo" type="number" class="validate" max="9" min="9">
 							  		<label for="permitNo">Licence Number</label>
 								</div>
 						  </div>
 						  <div class="row">
 								<div class="input-field col s12">
-							  		<input disabled value="01/03/2018" id="txtPermitDate" type="text" class="datepicker">
+							  		<input disabled id="txtPermitDate" type="text" class="datepicker">
 							  		<label for="txtPermitDate">Permit Date</label>
 								</div>
 						  	</div>
 							<div class="row">
 							<div class="input-field col s12">
-				  				<input disabled value="0485965863" id="telNo" type="tel" class="validate">
-				  				<label for="telNo">Phone Number</label>
+				  				<input disabled id="txtPhone" type="text" class="validate">
+				  				<label for="txtPhone">Phone Number</label>
 							</div>
 						</div>
 					</form>

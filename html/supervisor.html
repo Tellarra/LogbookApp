@@ -66,11 +66,7 @@ var onDeviceReady = function() {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
-      var shortName = "Log Book";
-      var version = "1";
-      var displayName = "Log Book";
-      var maxSize = 1024;
-      db = window.openDatabase(shortName, version, displayName, maxSize);
+      db = window.openDatabase("Log_Book", "1", "Log_Book", "1024");
       console.log("Database opened");
       db.transaction(populateDB, onError, showRecords);
     } // end else
