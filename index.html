@@ -53,12 +53,14 @@ $(document).ready(function() {
 				if(row['fldDrivingTime'] != null) {
 					currentTime = parseInt(row['fldDrivingTime']);
 					allTimesDriving += currentTime;
-					//allTime += row['fldDrivingTime'].substring(0,2);
-					console.log("1 " + allTimesDriving);
 				}
 			}
+			
+			if(allTimesDriving >= 7800) {
+				$("#modal2").modal('open');
+			}
+			
 			gaugeRecord(allTimesDriving);
-			console.log("2 " + allTimesDriving);
 		});
 	});
 	//console.log("3 " + allTimesDriving);
@@ -210,9 +212,6 @@ var showRecords = function() {
 						output += "<div class='card_icon'><i class='material-icons left'>event</i> " + row['fldDate'] + " </div>";
 						output += "<div class='card_icon'><i class='material-icons left'>people</i>Supervisor: " + row['fldSupervisorName'] + " </div>";
 						//console.log(output);
-						console.log(row['fldDrivingTime']);
-						console.log(row['fldLogNo'] + " Will go in if ");
-						console.log(trans.executeSql("SELECT fldDrivingTime FROM tblSession;"));
 						if(row['fldDrivingTime'] == null) {
 							console.log("no values");
 							output += "<p>This session is not finished yet - Click to edit it</p>";
@@ -309,10 +308,32 @@ var clearTxt = function clearTxt() {
 <!-- Modal1 Structure -->
 <div id="modal1" class="modal">
 	<div class="modal-content">
-			<span class="card-title">Supervisor</span>
+			<span class="card-title">Learner Profile</span>
+			
 				<div class="row">
 					<form class="col s12" id="addSupervisor" method="get">
-						  <div class="row">
+					  <div class="row">
+						<div class="input-field col s12" id="divParking">
+        					<p> I have already started my 120 hours practice:<br /><br />
+							<label> 
+								<input id="radParkingYes" name="radParking" type="radio" value="Yes" class="with-gap" checked />
+								<span>Yes</span>
+							</label>
+							<label> 
+								<input id="radParkingNo" name="radParking" type="radio" value="No" class="with-gap"/>
+								<span>No</span>
+							</label>
+							</p>
+						</div>
+			  		  	</div>
+			  		  	<div class="row">
+							<div class="input-field col s12">
+							  	<input id="txtHours" type="text" class="validate" >
+							  	<label for="txtHours">Hours Done:</label>
+							  	<p class="msg"></p>
+							</div>
+						</div>
+						<div class="row">
 								<div class="input-field col s12">
 							  		<input id="txtName" type="text" class="validate" >
 							  		<label for="txtName">Name</label>
@@ -358,6 +379,15 @@ var clearTxt = function clearTxt() {
   				</div> 
 			</div>
 		</div>
+<!-- Finish Modal -->
+<div id="modal2" class="modal">
+	<div class="modal-content">
+    	<h4>Congratulation!</h4>
+      		<p>You have completed all your 120 hours!<br />You must now add your signature to the Logbook Completion document.</p></div>
+    	<div class="modal-footer">
+      	<a href="html/logBookCompletion.html" class="modal-close waves-effect waves-green btn-flat">Complete</a>
+     </div>
+</div>
 <!--Cards-->
 <div id="cardSession">
 	

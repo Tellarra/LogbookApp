@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!--Import Google Icon Font-->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!--Import materialize.css-->
+<link type="text/css" rel="stylesheet" href="../css/materialize.css"  media="screen,projection"/>
+<!--Let browser know website is optimized for mobile-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link type="text/css" rel="stylesheet" href="../css/mainStylesheet.css"/>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="../js/materialize.min.js"></script>
+
+<!-- Signature plugin -->
+<script src="../Plugins/jSignature/jSignature.min.js"></script>
+<script src="../Plugins/validator/jquery.validate.js"></script>
+<!-- Validator plugin -->
+<script>
+//Create Database
+var showSQL = "SELECT * FROM tblSession;";
+var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
+var db = null;	
+	
+$(document).ready(function() {
+	document.addEventListener("deviceready", onDeviceReady(), false);
+	//NavBar
+    $('.sidenav').sidenav();
+	//Date picker
+	$('.datepicker').datepicker({
+		defaultDate: 'now',
+	});
+	//Time Picker
+	$('.timepicker').timepicker({
+		defaultTime: 'now',
+		twelveHour: false,
+	});
+	//Select Button
+	$('select').formSelect();
+	//Put label on top of the text input
+	//M.updateTextFields();
+	//Signature
+	$("#learnerSignature").jSignature();
+	$("#supervisorSignature").jSignature();
+	$("#clearButton1").on("click", function() {
+		$("#learnerSignature").jSignature("clear");
+	});
+	$("#clearButton2").on("click", function() {
+		$("#supervisorSignature").jSignature("clear");
+	});
+	//Save
+	$("#submitForm").on("click", function() {
+		insertRecord();
+		var datapair = $("#learnerSignature").jSignature("getData", "svgbase64");
+		var datapair2 = $("#supervisorSignature").jSignature("getData", "svgbase64");
+		var learnerS = new Image();
+		var supervisorS = new Image();
+		learnerS.src = "data:" + datapair[0] + "," + datapair[1];
+		supervisorS.src = "data: " + datapair2[0] + ", " + datapair2[1];
+		console.log(learnerS);
+		console.log(supervisorS);
+		$("#learnerSignature").attr("hidden", true);
+		$("#learnerSignature .btn").attr("hidden", true);
+		$("#supervisorSignature").attr("hidden", true);
+		$("#supervisorSignature .btn").attr("hidden", true);
+		$(learnerS).appendTo($("#divSignature1"));
+		$(supervisorS).appendTo($("#divSignature2"));
+	});
+});
+	
+var onDeviceReady = function() {
+  console.log("In deviceready");
+  try {
+    if( !window.openDatabase )
+      alert("This device does NOT support databases");
+    else {
+      db = window.openDatabase("Log Book", "1", "Log Book", "1024");
+      console.log("Database opened");
+      db.transaction(populateDB, onError);
+    } // end else
+  }
+  catch(err) {
+    console.log("Error: " + err);
+  }
+};
+	
+var populateDB = function(trans) {
+  db.transaction(function(trans) {
+	  trans.executeSql(selectOtherTable,[]);
+
+	  db.transaction(showRecords);
+	 
+	 //trans.executeSql(dropTable,[]);
+	  console.log("Table created");
+  }); // end of transaction
+};
+	
+var showRecords = function() {
+  console.log("In show records");
+  db.transaction(function(trans) {
+	  //console.log(selectAllRecordSupervisor);
+	  trans.executeSql( "SELECT * FROM tblSupervisor;",[], function(trans, result) {
+      var str = "";
+	console.log(result);
+      	
+      if( result.rows.length == 0 ) {
+		  $("#selName").addClass("hiddendiv");
+		  $("#divName").removeClass("hiddendiv");
+      } else {
+		$("#divName").addClass("hiddendiv");
+		$("#selName").removeClass("hiddendiv");
+        var noOfRecs = result.rows.length;
+		var output = "";
+		var outputLicenceNo= ""; 
+		  
+        for(var i = 0; i < noOfRecs; i++) {
+          //saving row to a variable
+				var rowName = result.rows.item(i);
+				output += "<option value='" + rowName['fldName'] + "'>" + rowName['fldName'] + "</option>";
+				outputLicenceNo += "<option value='" + rowName['fldLicenceNo'] + "'>" + rowName['fldLicenceNo'] + " - " + rowName['fldName'] + "</option>";
+				//outputLicenceNo = rowLicenceNo['fldLicenceNo'];
+			//}	
+        }
+        $(".select-wrapper #selName").append(output);
+		$(".select-wrapper #selName").formSelect();
+		$(".select-wrapper #selLicenceNo").append(outputLicenceNo);
+		$(".select-wrapper #selLicenceNo").formSelect();
+        console.log("Name added to select");
+      } // end else
+    });
+	  //Profile
+	   trans.executeSql( "SELECT * FROM tblProfile;",[], function(trans, result) {
+      var str = "";
+	console.log(result);
+      	
+      if( result.rows.length == 0 ) {
+		  $("#txtProfileName").html("You must create a profile first");
+      } else {
+        var noOfRecs = result.rows.length;
+		  
+        for(var i = 0; i < noOfRecs; i++) {
+          //saving row to a variable
+          	var row = result.rows.item(i);
+			$("#txtProfileName").html(row['fldName']);
+			$("#txtProfileName").val(row['fldName']);
+			$("#txtLearnerLicence").html(row['fldLicenceNo']);
+			$("#txtLearnerLicence").val(row['fldLicenceNo']);
+        }
+		  M.updateTextFields();
+        console.log("Name added to div");
+      } // end else
+    });
+  });
+};
+	
+var insertRecord = function() {
+  console.log("In insertRecord");
+  /*var logId = 0;
+	logId =+ 1;
+	console.log(logId);*/
+  //var newName = $("#txtProfileName").val();
+  //var newLogId = $("#txtId").val(logId);
+  var newSupervisorName = $(".select-wrapper #selName option:selected").val();
+  var newLicenceNo = $(".select-wrapper #selLicenceNo option:selected").val();
+  var newCarRego = $("#txtRegNo").val();
+  var newDate = $("#txtDate").val();
+  var newStartTime = $("#txtStartTime").val();
+  var newOdometerStart = $(".txtOdometer").val();
+
+  console.log( "New Supervisor: " + newSupervisorName );
+    db.transaction(function(trans) {
+      trans.executeSql(insertSQL, [newSupervisorName, newLicenceNo, newCarRego, newDate, newStartTime, newOdometerStart], onError);
+    });
+	//location.reload();
+	console.log(newSupervisorName, newLicenceNo, newCarRego,newDate, newStartTime, newOdometerStart);
+	//$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
+    //clearTxt();
+    return true;
+}
+	
+var onError = function(err) {
+	var str = "";
+	switch(err.code)	{
+		case	0:  str += "Non database error: " + err.message;
+					break;
+		case	1:	str += "Some database error: " + err.message;
+					break;
+		case	2:	str += "Wrong database version: " + err.message;
+					break;
+		case	3:	str += "Data set too large to return from query: " + err.message;
+					break;
+		case	4: 	str += "Storage limit exceeded: " + err.message;
+					break;
+		case	5:	str += "Lock contension error: " + err.message;
+					break;
+		case	6:	str += "Constraint failure: " + err.message;
+					break;
+		default	:	str += "Error: " + err.code + " " + err.message;
+					break;
+	}
+	console.log(str);
+}
+
+var clearTxt = function clearTxt() {
+  setTimeout(function(){$(".msg").html("");}, 1000);
+}
+	
+
+</script>
+<title>LogBook</title>
+</head>
+
+<body>
+<div class="pages" id="page" data-theme="a" >
+<nav>
+    <div class="nav-wrapper">
+      <a href="#!" class="center brand-logo">Log Book</a>
+      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+      <ul class="left hide-on-med-and-down">
+        <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
+      </ul>
+    </div>
+  </nav>
+ <h1 align="center">LogBook Completion Document</h1>
+ <input type="hidden" id="txtId">
+<div class="row">
+	<form method="get" id="formValidate" class="col s12">
+ 		<div class="row">
+			<div class="input-field col s12">
+				<i class="material-icons prefix">person</i>
+				<input id="txtProfileName" type="text" value="" disabled>
+				<label for="txtProfileName" class="active teal-text text-lighten-2">Learner's Name</label>
+				<span class="helper-text" ></span>
+			</div>
+		</div>
+ 		<div class="row">
+			<div class="input-field col s12">
+				<i class="material-icons prefix">card_membership</i>
+				<input id="txtLearnerLicence" type="text" value="" disabled>
+				<label for="txtLearnerLicence" class="active teal-text text-lighten-2">Learner's Licence No</label>
+				<span class="helper-text" ></span>
+			</div>
+		</div>
+  		<div class="row" id="divName">
+				<div  class="input-field col s12">
+			 	  <i class="material-icons prefix">card_membership</i>
+				  <input id="txtName" type="text" class="validate">
+				  <label for="txtName" class="active teal-text text-lighten-2">Supervisor's Name</label>
+				  <span class="helper-text" ></span>
+				</div>
+		</div>
+			  <div class="input-field col s12 m6">
+					<i class="material-icons prefix">people</i>
+						<select class="icons" id="selName">
+							
+						</select>
+					<label class="teal-text text-lighten-2">Supervisor's name</label>
+			  </div>
+		  <div class="input-field col s12 m6">
+					<i class="material-icons prefix">card_membership</i>
+						<select class="icons" id="selLicenceNo">
+						</select>
+					<label class="teal-text text-lighten-2">Supervisor's Licence Number</label>
+			  </div>
+			<div class="row">
+				<div class="input-field col s12">
+			  		<i class="material-icons prefix">event</i>
+				  <input id="txtDate" type="text" class="datepicker">
+				  <label for="txtDate" class="teal-text text-lighten-2">Date</label>
+				</div>
+			</div>
+			  <div class="row" id="divSignature1">
+				  <div class="input-field col s12">
+					<p class="teal-text text-lighten-2">Learner's Signature</p>
+					<div id="learnerSignature"></div>
+					<p>
+			  			<button class="waves-effect waves-light btn" type="button" id="clearButton1">Clear</button>
+			  		</p>
+				  </div>
+			  </div>
+			  
+			  <div class="row" id="divSignature2">
+				  <div class="input-field col s12">
+					<p class="teal-text text-lighten-2">Supervisor's Signature</p>
+					<div id="supervisorSignature"></div>
+					<p>
+			  			<button class="waves-effect waves-light btn" type="button" id="clearButton2">Clear</button>
+			  		</p>
+				  </div>
+			  </div>
+			  <div class="row" id="append1">
+			  </div>
+			  <div class="row" id="append2"></div>
+			  <div class="input-field col s12">
+			  <div class="right">
+			  	<button class="waves-effect waves-light btn" type="reset" id="resetButton">Reset</button>
+			  	<button class="btn waves-effect waves-light red accent-4" type="button" name="action" id="submitForm">Submit
+    				<i class="material-icons right">send</i>
+  				</button>
+  			  </div>
+  			  </div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
