@@ -87,6 +87,56 @@ var populateDB = function(trans) {
   }); // end of transaction
 };
 	
+var checkRecord = function() {
+	var supervisorName = $(".select-wrapper #selName option:selected").val();
+	var licenceNo = $(".select-wrapper #selLicenceNo option:selected").val();
+	if($(".select-wrapper #selCar option:selected").val() == "other" || $("#divCar").hasClass("hiddendiv")) {
+		var carRego = $("#txtRegNo").val();
+	} else {
+		var carRego = $(".select-wrapper #selCar option:selected").val();
+	}
+	var date = $("#txtDate").val();
+	var startTime = $("#txtStartTime").val();
+	var odometerStart = $(".txtOdometer").val();
+	
+	var dob = new Date(birthDate);
+	var today = new Date();
+	var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
+	//$('#age').html(age+' years old');
+	console.log(age);
+	var permit = new Date(permitDate);
+	var permitHold = Math.floor((today-permit) / (365.25 * 24 * 60 * 60 * 1000));
+	console.log(permitHold);
+	
+	if(carRego == "" || carRego.length != 6 ) {
+		$(".msg").html("<em>You must enter a car registration number (6 characters).</em>");
+		//$("#txtHours").focus();
+		return false;
+	} else if(name == "" || !(isNaN(name))) {
+		$(".msg").html("<em>You must enter your name.</em>");
+		$("#txtName").focus();
+		return false;
+	} else if(birthDate == "" || age <= 17) {
+		$(".msg").html("<em>Your age must be greater than 17.</em>");
+		$("#birthDate").focus();
+		return false;
+	} else if(licenceNo == "" || isNaN(licenceNo) || licenceNo.length != 9) {
+		$(".msg").html("<em>You must enter a valid number (9 digits).</em>");
+		$("#licenceNo").focus();
+		return false;
+	} else if(permitHold <= 0 || birthDate == "") {
+		$(".msg").html("<em>You must have hold a permit for at least 1 year.</em>");
+		$("#permitDate").focus();
+		return false;
+	} else if(phoneNo.length != 10 || isNaN(phoneNo)) {
+		$(".msg").html("<em>You must enter a valid phone number.</em>");
+		$("#phoneNo").focus();
+		return false;
+	}
+	else
+		return true;
+}
+	
 var showRecords = function() {
   console.log("In show records");
   db.transaction(function(trans) {
@@ -297,6 +347,9 @@ var clearTxt = function clearTxt() {
           <input id="txtOdom" type="text" class="validate txtOdometer">
           <label for="txtOdom" class="teal-text text-lighten-2">Odometer Before Driving</label>
         </div>
+      </div>
+      <div class="row">
+      	<p class="msg"></p>
       </div>
       <!--<div class="row">
         <div class="input-field col s12">

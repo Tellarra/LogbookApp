@@ -34,13 +34,13 @@
 var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhoneNo TEXT);";
 var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
 var showSQL = "SELECT * FROM tblProfile;";
-var updateRecordSQL = "UPDATE tblProfile SET fldName=?, fldPhoneNo=? WHERE fldLicenceNo = ?;";
+var updateRecordSQL = "UPDATE tblProfile SET fldPhoneNo=?, fldBirth=?, fldPermitDate=? WHERE fldLicenceNo = ?;";
 var deleteSQL = "DELETE from tblProfile WHERE fldLicenceNo=?;";
 var selectOtherTable = "SELECT * FROM Log Book WHERE type = 'table';";
 var	deleteAllSQL = "DELETE from tblProfile";
 var dropTable = "DROP TABLE tblProfile";
 var db = null;
-$(document).ready(function(){
+$(document).ready(function() {
 	document.addEventListener("deviceready", onDeviceReady(), false);
 //Profile Picture
 	/*if($.fn.cloudinary_fileupload !== undefined) {
@@ -61,7 +61,9 @@ $(document).ready(function(){
 //NavBar
     $('.sidenav').sidenav();
 //Date picker
-	$('.datepicker').datepicker();
+	$('.datepicker').datepicker( {
+		format:"dd-mm-yyyy"
+	});
 //Collapsible
 	$('.collapsible').collapsible();
 
@@ -76,6 +78,7 @@ $(document).ready(function(){
 	});
 //Save Button
 	$("#saveInfo").on("click", function() {
+		editRecord();
 		$("#editProfile").show();
 		$("#saveInfo").hide();
 		
@@ -83,6 +86,13 @@ $(document).ready(function(){
 			$("input").prop("disabled",true);
 		});
 	});
+	
+var dob = new Date($("#txtBirthdate").val());
+var today = new Date();
+console.log(dob);
+var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
+//$('#age').html(age+' years old');
+console.log(age);
 	
 //Profile picture
  var readURL = function(input) {
@@ -105,7 +115,46 @@ $(document).ready(function(){
     $(".upload-button").on('click', function() {
        $(".file-upload").click();
     });
-});	
+});
+
+var checkRecord = function() {
+	var name = $("#txtName").val();
+	var birthDate = $("#txtBirthdate").val();
+	var licenceNo = $("#permitNo").val();
+	var permitDate = $("#txtPermitDate").val();
+	var phoneNo = $("#txtPhone").val();
+	
+	var dob = new Date(birthDate);
+	var today = new Date();
+	var age = Math.floor((today-birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+	//$('#age').html(age+' years old');
+	console.log(age);
+	
+	if(name == "") {
+		$("#errorMsg").html("<em>You must enter a your name.</em>");
+		$("#txtName").focus();
+		return false;
+	} else if (birthDate == "" || age <= 17) {
+		$("#msg").html("<em>You must enter a last name.</em>");
+		$("#txtLast").focus();
+		return false;
+	}
+	else if (jumper == "")
+	{
+		$("#msg").html("<em>You must enter a jumper number.</em>");
+		$("#txtJumper").focus();
+		return false;
+	}
+	else if (isNaN(jumper))
+	{
+		$("#msg").html("<em>You must enter a jumper number.</em>");
+		$("#txtJumper").val("");
+		$("#txtJumper").focus();
+		return false;
+	}
+	else
+		return true;
+}
 	
 var onDeviceReady = function() {
   console.log("In deviceready");
@@ -159,6 +208,20 @@ var showRecords = function() {
     });
   });
 };
+	
+var editRecord = function(trans) {
+	//var name = $("#txtName").val();
+	var birthDate = $("#txtBirthdate").val();
+	var licenceNo = $("#permitNo").val();
+	var permitDate = $("#txtPermitDate").val();
+	var phoneNo = $("#txtPhone").val();
+	
+	console.log("values:" + birthDate + " " + licenceNo + " " + permitDate + " " + phoneNo);
+	db.transaction(function(trans) {
+		trans.executeSql(updateRecordSQL,[phoneNo, birthDate, permitDate],showRecords, onError);
+		console.log(trans.executeSql(updateRecordSQL,[phoneNo, birthDate, permitDate]));
+	});
+}
 	
 var onError = function(err) {
 	var str = "";
@@ -225,6 +288,7 @@ var clearTxt = function clearTxt() {
 						  <div class="row">
 								<div class="input-field col s12">
 							  		<input disabled id="txtName" type="text" class="validate">
+							  		<p id="errorMsg"></p>
 							  		<label for="txtName"> Name</label>
 								</div>
 						  </div>

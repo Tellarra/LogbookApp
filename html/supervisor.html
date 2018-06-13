@@ -19,7 +19,8 @@
 var createTableSQL = "CREATE TABLE IF NOT EXISTS tblSupervisor (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT, fldPhoneNo TEXT);";
 var insertSQL = "INSERT INTO tblSupervisor (fldLicenceNo, fldName, fldPhoneNo) VALUES (?, ?, ?);";
 var showSQL = "SELECT * FROM tblSupervisor;";
-var updateRecordSQL = "UPDATE tblSupervisor SET fldName=?, fldPhoneNo=? WHERE fldLicenceNo = ?;";
+var updateRecordSQL = "UPDATE tblSupervisor SET fldName=?, fldPhoneNo=? WHERE fldLicenceNo=?;";
+var updatePhoneNo = "UPDATE tblSupervisor SET fldPhoneNo=? WHERE fldLicenceNo=?;";
 var deleteSQL = "DELETE from tblSupervisor WHERE fldLicenceNo=?;";
 var	deleteAllSQL = "DELETE from tblSupervisor";
 var dropTable = "DROP TABLE tblSupervisor";
@@ -49,10 +50,10 @@ $(document).ready(function() {
     	insertRecord();
   });
   
-  	$("#editSupervisor").on('click', function() {
+  	/*$("#editSupervisor").on('click', function() {
 		console.log("About to edit a task");
 		saveRecord();
-	});
+	});*/
 
 	$("#deleteAll").on('click', function() {
 		deleteALLRecords();
@@ -125,84 +126,116 @@ var showRecords = function() {
     });
   });
 };
+	
+var checkRecord = function() {
+	var name = $("#txtName").val();
+  	var licenceNo = $("#licenceNo").val();
+  	var phoneNo = $("#phoneNo").val();
+	
+	if(name == "" || !(isNaN(name))) {
+		$(".msg").html("<em>You must enter your name.</em>");
+		$("#txtName").focus();
+		return false;
+	} else if(licenceNo == "" || isNaN(licenceNo) || licenceNo.length != 9) {
+		$(".msg").html("<em>You must enter a valid number (9 digits).</em>");
+		$("#licenceNo").focus();
+		return false;
+	} else if(phoneNo.length != 10 || isNaN(phoneNo)) {
+		$(".msg").html("<em>You must enter a valid phone number.</em>");
+		$("#phoneNo").focus();
+		return false;
+	}
+	else
+		return true;
+}
 
 var insertRecord = function() {
   console.log("In insertRecord");
-
-  var newName = $("#txtName").val();
-  var newLicenceNo = $("#licenceNo").val();
-  var newPhoneNo = $("#phoneNo").val();
-
-  console.log( "New Supervisor: " + newName );
-    db.transaction(function(trans) {
-      trans.executeSql(insertSQL, [newLicenceNo, newName, newPhoneNo], onError);
-    });
-	location.reload();
-	
-	$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
-    clearTxt();
+	if(checkRecord()) {
+		var newName = $("#txtName").val();
+  		var newLicenceNo = $("#licenceNo").val();
+ 		var newPhoneNo = $("#phoneNo").val();
+		
+		db.transaction(function(trans) {
+			  trans.executeSql(insertSQL, [newLicenceNo, newName, newPhoneNo], onError);
+		});
+		location.reload();
+	}
     return true;
 }
 
 var editRecord = function(name,licenceNo,phoneNo) {
   console.log("In save task")
-  console.log( "First Name: " + phoneNo );
+  console.log( "First Name: " + name );
 	$("#editName").val(name);
 	$("#editLicenceNo").val(licenceNo);
 	$("#editPhoneNo").val(phoneNo);
 	
+	$("#editSupervisor").on('click', function() {
+		console.log("About to edit a task");
+		saveRecord();
+	});
 	M.updateTextFields();
 }
 							
 var saveRecord = function() {
-	var name = $("#editName").val();
-	var licenceNo = $("#editLicenceNo").val();
-	var phoneNo = $("#editPhoneNo").val();
 	
-	db.transaction(function(trans) {
-		  trans.executeSql(updateRecordSQL, [name, phoneNo, licenceNo], showRecords, onError);
-	});
-	location.reload();
-	clearTxt();
+	var editName = $("#editName").val();
+	var editLicenceNo = $("#editLicenceNo").val();
+	var editPhoneNo = $("#editPhoneNo").val();
+	
+	/*if (editName == "" || !(isNaN(editName))) {
+		$(".msg").html("<em>You must enter your name.</em>");
+		$("#editName").focus();
+		return false;
+	} *//*if(editPhoneNo.length != 10 || isNaN(editPhoneNo)) {
+		$(".msg").html("<em>You must enter a valid phone number.</em>");
+		$("#editPhoneNo").focus();
+		return false;
+	} else {*/
+		console.log(editName + " " + editLicenceNo + " " + editPhoneNo);
+		db.transaction(function(trans) {
+			trans.executeSql(updateRecordSQL, [editName, editPhoneNo, editLicenceNo], onError);
+			//console.log(trans.executeSql(updateRecordSQL, [editName, editPhoneNo, editLicenceNo]));
+		});
+	//}
+	
+		//location.reload();
 	return true;
 }
 
-var deleteRecord = function(licenceNo)
-{
+var deleteRecord = function(licenceNo) {
 	var q = confirm("Do you wish to delete this record");
 
 	if(q) {
 		db.transaction(function(trans) {
 			trans.executeSql(deleteSQL, [licenceNo], onError);
 		});
-		$(".msg").html("Record deleted");
+		//$(".msg").html("Record deleted");
 		location.reload();
-		clearTxt();
+		//clearTxt();
 		return true;
 	} else {
-		$(".msg").html("Record NOT deleted");
-		clearTxt();
+		//$(".msg").html("Record NOT deleted");
+		//clearTxt();
 		return false;
 	}
 }
 
-var deleteALLRecords = function()
-{
+var deleteALLRecords = function() {
 	var q = confirm("Do you wish to delete ALL records?");
 
-	if(q)
-	{
+	if(q) {
 		db.transaction(function(trans) {
 			trans.executeSql(deleteAllSQL, [], showRecords, onError);
 		});
 
-		$(".msg").html("All records deleted");
-		clearTxt();
+		//$(".msg").html("All records deleted");
+		//clearTxt();
 		return true;
 	}
-	else
-	{	$(".msg").html("All records NOT deleted");
-		clearTxt();
+	else {	//$(".msg").html("All records NOT deleted");
+		//clearTxt();
 		return false;
 	}
 }
@@ -265,22 +298,22 @@ var clearTxt = function clearTxt() {
 								<div class="input-field col s12">
 							  		<input id="txtName" type="text" class="validate" >
 							  		<label for="txtName">Name</label>
-							  		<p class="msg"></p>
 								</div>
 						  	</div>
 							<div class="row">
 								<div class="input-field col s12">
 								  <input id="licenceNo" type="text" class="validate">
 								  <label for="licenceNo">Licence Number</label>
-								  <p class="msg"></p>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<input id="phoneNo" type="text" class="validate">
 									<label for="phoneNo">Phone Number</label>
-									<p class="msg"></p>
 								</div>
+							</div>
+							<div class="row">
+								<p class="msg"></p>
 							</div>
 						</form>
 					</div>
@@ -304,22 +337,22 @@ var clearTxt = function clearTxt() {
 								<div class="input-field col s12">
 							  		<input id="editName" type="text" class="validate" >
 							  		<label for="editName">Name</label>
-							  		<p class="msg"></p>
 								</div>
 						  	</div>
 							<div class="row">
 								<div class="input-field col s12">
 								  <input id="editLicenceNo" type="text" class="validate">
 								  <label for="editLicenceNo">Licence Number</label>
-								  <p class="msg"></p>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<input id="editPhoneNo" type="text" class="validate">
 									<label for="editPhoneNo">Phone Number</label>
-								<p class="msg"></p>
 							</div>
+						</div>
+						<div class="row">
+							<p class="msg"></p>
 						</div>
 					</form>
 				</div>

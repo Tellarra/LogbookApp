@@ -39,7 +39,9 @@ $(document).ready(function() {
 	//Modal
 	$('.modal').modal();
 	//DatePickers
-	$('.datepicker').datepicker();
+	$('.datepicker').datepicker( {
+		format:"yyyy-mm-dd"
+	});
 	//Save profile
 	$("#saveProfile").on("click", function() {
 		insertRecord();
@@ -82,9 +84,53 @@ $(document).ready(function() {
 			gaugeRecord(allTimesDriving);
 		});
 	});
-	//console.log("3 " + allTimesDriving);
-	
 });
+
+var checkRecord = function() {
+	var name = $("#txtName").val();
+  	var birthDate = $("#birthDate").val();
+  	var licenceNo = $("#licenceNo").val();
+  	var permitDate = $("#permitDate").val();
+  	var phoneNo = $("#phoneNo").val();
+	var hours = $("#txtHours").val();
+	
+	var dob = new Date(birthDate);
+	var today = new Date();
+	var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
+	//$('#age').html(age+' years old');
+	console.log(age);
+	var permit = new Date(permitDate);
+	var permitHold = Math.floor((today-permit) / (365.25 * 24 * 60 * 60 * 1000));
+	console.log(permitHold);
+	
+	if($("input[name='radHours']:checked").val() != "Yes" && hours == "" && isNaN(hours) && hours.length <=1) {
+		$(".msg").html("<em>You must enter the hours / minutes you have done.</em>");
+		$("#txtHours").focus();
+		return false;
+	} else if(name == "" || !(isNaN(name))) {
+		$(".msg").html("<em>You must enter your name.</em>");
+		$("#txtName").focus();
+		return false;
+	} else if(birthDate == "" || age <= 17) {
+		$(".msg").html("<em>Your age must be greater than 17.</em>");
+		$("#birthDate").focus();
+		return false;
+	} else if(licenceNo == "" || isNaN(licenceNo) || licenceNo.length != 9) {
+		$(".msg").html("<em>You must enter a valid number (9 digits).</em>");
+		$("#licenceNo").focus();
+		return false;
+	} else if(permitHold <= 0 || birthDate == "") {
+		$(".msg").html("<em>You must have hold a permit for at least 1 year.</em>");
+		$("#permitDate").focus();
+		return false;
+	} else if(phoneNo.length != 10 || isNaN(phoneNo)) {
+		$(".msg").html("<em>You must enter a valid phone number.</em>");
+		$("#phoneNo").focus();
+		return false;
+	}
+	else
+		return true;
+}
 	
 var onDeviceReady = function() {
   console.log("In deviceready");
@@ -207,13 +253,9 @@ function gaugeRecord(allTimesDriving) {
 }
 var showRecords = function() {
 	db.transaction(function(trans){
-		console.log("in showRecords")
-		
 		trans.executeSql("SELECT * FROM tblProfile;",[], function(trans, result) {
-		 //console.log(result);
 		  	if(result.rows.length == 0) {
-				console.log("in modal2")
-				//Modal
+				//Open Modal
 				$("#modal1").modal('open');
 		 	} else {
 				trans.executeSql("SELECT * FROM tblSession;",[], function(trans, result) {
@@ -233,16 +275,11 @@ var showRecords = function() {
 						output += "<div class='card_icon'><i class='material-icons left'>people</i>Supervisor: " + row['fldSupervisorName'] + " </div>";
 						//console.log(output);
 						if(row['fldDrivingTime'] == null) {
-							console.log("no values");
 							output += "<p>This session is not finished yet - Click to edit it</p>";
 							//console.log(output);
 						} else {
-							//var drivingTime = row['fldStartTime'] - row['fldFinishTime'];
-							//console.log(drivingTime);
-							console.log("in values");
 							output += "<div class='card_icon'><i class='material-icons left'>access_time</i>" + row['fldDrivingTime'].substr(0,3) + " minutes</div>";
 							output += "<div class='card_icon'><i class='material-icons left'>brightness_4</i>" + row['fldLight'] + "</div>";
-							//console.log(output);
 						}
 						output +="<button onClick='deleteRecord(\"" + row['fldLogNo'] + "\");' class='btn waves-effect waves-light right red'>Delete</button>";
 						output += "</div></div></div></a></div>";
@@ -256,29 +293,26 @@ var showRecords = function() {
 
 var insertRecord = function() {
   console.log("In insertRecord");
-
-  var newName = $("#txtName").val();
-  var newBirthDate = $("#birthDate").val();
-  var newLicenceNo = $("#licenceNo").val();
-  var newPermitDate = $("#permitDate").val();
-  var newPhoneNo = $("#phoneNo").val();
-	var newHours = $("#txtHours").val();
-
-  console.log("New Profile: " + newName + newBirthDate + newLicenceNo + newPermitDate + newPhoneNo + newHours );
-    db.transaction(function(trans) {
-		if($("input[name='radHours']:checked").val() == "No") {
-			console.log("save 1");
-			trans.executeSql(insertSQL, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo], onError);
-		} else {
-			console.log("save 2");
-			trans.executeSql(insertSQL2, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo, newHours], onError);
-			//console.log(trans.executeSql(insertSQL2, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo, newHours]));
-		}
-    });
-	//location.reload();
-	
-	$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
-    clearTxt();
+	if(checkRecord()) {
+		var newName = $("#txtName").val();
+		var newBirthDate = $("#birthDate").val();
+		var newLicenceNo = $("#licenceNo").val();
+		var newPermitDate = $("#permitDate").val();
+		var newPhoneNo = $("#phoneNo").val();
+		var newHours = $("#txtHours").val();
+		
+		console.log("New Profile: " + newName + newBirthDate + newLicenceNo + newPermitDate + newPhoneNo + newHours );
+    	db.transaction(function(trans) {
+			if($("input[name='radHours']:checked").val() == "No") {
+				trans.executeSql(insertSQL, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo], onError);
+			} else {
+				trans.executeSql(insertSQL2, [newLicenceNo, newName, newBirthDate, newPermitDate, newPhoneNo, newHours], onError);
+			}
+    	});
+	}
+	location.reload();
+	$("#msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
+    //clearTxt();
     return true;
 }
 
@@ -379,7 +413,6 @@ var clearTxt = function clearTxt() {
 <div id="modal1" class="modal">
 	<div class="modal-content">
 			<span class="card-title">Learner Profile</span>
-			
 				<div class="row">
 					<form class="col s12" id="addSupervisor" method="get">
 					  <div class="row">
@@ -398,45 +431,42 @@ var clearTxt = function clearTxt() {
 			  		  	</div>
 			  		  	<div class="row">
 							<div class="input-field col s12" id="divHours">
-							  	<input id="txtHours" type="text" class="validate" >
+							  	<input id="txtHours" type="text">
 							  	<label for="txtHours">Hours Done (in minutes):</label>
-							  	<p class="msg"></p>
 							</div>
 						</div>
 						<div class="row">
 								<div class="input-field col s12">
-							  		<input id="txtName" type="text" class="validate" >
+							  		<input id="txtName" type="text">
 							  		<label for="txtName">Name</label>
-							  		<p class="msg"></p>
 								</div>
 						  	</div>
 						  	<div class="row">
 								<div class="input-field col s12">
 									<input id="birthDate" type="text" class="datepicker">
 									<label for="birthDate">Birthdate</label>
-									<p class="msg"></p>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
-								  <input id="licenceNo" type="text" class="validate">
+								  <input id="licenceNo" type="text">
 								  <label for="licenceNo">Licence Number</label>
-								  <p class="msg"></p>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<input id="permitDate" type="text" class="datepicker">
 									<label for="permitDate">Permit Date</label>
-									<p class="msg"></p>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
-									<input id="phoneNo" type="text" class="validate">
+									<input id="phoneNo" type="text">
 									<label for="phoneNo">Phone Number</label>
-									<p class="msg"></p>
 								</div>
+							</div>
+							<div class="row">
+								<p class="msg"></p>
 							</div>
 						</form>
 					</div>
