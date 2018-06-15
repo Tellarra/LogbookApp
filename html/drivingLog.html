@@ -36,7 +36,7 @@ $(document).ready(function() {
     $('.sidenav').sidenav();
 	//Date picker
 	$('.datepicker').datepicker({
-		defaultDate: 'now',
+		format:'yyyy-mm-dd'
 	});
 	//Time Picker
 	$('.timepicker').timepicker({
@@ -47,7 +47,9 @@ $(document).ready(function() {
 	$('select').formSelect();
 	$(".select-wrapper #selCar").change(function() {
 		if($(".select-wrapper #selCar option:selected").val() == "other") {
-			$("#divRegNo").removeClass("hiddendiv")
+			$("#divRegNo").removeClass("hiddendiv");
+		} else {
+			$("#divRegNo").addClass("hiddendiv");
 		}
 	});
 	
@@ -59,6 +61,7 @@ $(document).ready(function() {
 	//Save
 	$("#submitForm").on("click", function() {
 		insertRecord();
+		window.history.back();
 	});
 });
 	
@@ -99,41 +102,36 @@ var checkRecord = function() {
 	var startTime = $("#txtStartTime").val();
 	var odometerStart = $(".txtOdometer").val();
 	
-	var dob = new Date(birthDate);
+	var actualDay = new Date(date);
 	var today = new Date();
-	var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
+	console.log(today.getHours());
+	console.log(startTime);
+	console.log(startTime.substring(3,5));
+	console.log(startTime.substring(0,2));
+	//var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
 	//$('#age').html(age+' years old');
-	console.log(age);
-	var permit = new Date(permitDate);
+	//console.log(age);
+	/*var permit = new Date(permitDate);
 	var permitHold = Math.floor((today-permit) / (365.25 * 24 * 60 * 60 * 1000));
-	console.log(permitHold);
+	console.log(permitHold);*/
 	
-	if(carRego == "" || carRego.length != 6 ) {
+	if($(".select-wrapper #selCar option:selected").val() == "other" || carRego == "" || carRego.length != 6 ) {
 		$(".msg").html("<em>You must enter a car registration number (6 characters).</em>");
-		//$("#txtHours").focus();
+		$("#txtRegNo").focus();
 		return false;
-	} else if(name == "" || !(isNaN(name))) {
-		$(".msg").html("<em>You must enter your name.</em>");
-		$("#txtName").focus();
+	} else if(date == "" || actualDay.getDate() != today.getDate()) {
+		$(".msg").html("<em>You must enter the actual date.</em>");
+		$("#txtDate").focus();
 		return false;
-	} else if(birthDate == "" || age <= 17) {
-		$(".msg").html("<em>Your age must be greater than 17.</em>");
-		$("#birthDate").focus();
+	} else if(startTime == "" || startTime.substring(0,2) != today.getHours() || startTime.substring(3,5) != today.getMinutes()) {
+		$(".msg").html("<em>Your must enter the right time.</em>");
+		$("#txtStartTime").focus();
 		return false;
-	} else if(licenceNo == "" || isNaN(licenceNo) || licenceNo.length != 9) {
-		$(".msg").html("<em>You must enter a valid number (9 digits).</em>");
-		$("#licenceNo").focus();
+	} else if(odometerStart == "" || isNaN(odometerStart)) {
+		$(".msg").html("<em>You must enter a the odometer (only digits).</em>");
+		$(".txtOdometer").focus();
 		return false;
-	} else if(permitHold <= 0 || birthDate == "") {
-		$(".msg").html("<em>You must have hold a permit for at least 1 year.</em>");
-		$("#permitDate").focus();
-		return false;
-	} else if(phoneNo.length != 10 || isNaN(phoneNo)) {
-		$(".msg").html("<em>You must enter a valid phone number.</em>");
-		$("#phoneNo").focus();
-		return false;
-	}
-	else
+	} else
 		return true;
 }
 	
@@ -225,15 +223,12 @@ var insertRecord = function() {
 	var newStartTime = $("#txtStartTime").val();
 	var newOdometerStart = $(".txtOdometer").val();
 	
-  console.log( "New Supervisor: " + newSupervisorName );
-    db.transaction(function(trans) {
-      trans.executeSql(insertSQL, [newSupervisorName, newLicenceNo, newCarRego, newDate, newStartTime, newOdometerStart], onError);
-    });
-	//location.reload();
-	
-	console.log(newSupervisorName, newLicenceNo, newCarRego,newDate, newStartTime, newOdometerStart);
-	//$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
-    //clearTxt();
+	if(checkRecord()) {
+		console.log( "New Supervisor: " + newSupervisorName );
+   		db.transaction(function(trans) {
+      		trans.executeSql(insertSQL, [newSupervisorName, newLicenceNo, newCarRego, newDate, newStartTime, newOdometerStart], onError);
+    	});
+	}
     return true;
 }
 	
@@ -278,7 +273,7 @@ var clearTxt = function clearTxt() {
       </ul>
     </div>
   </nav>
-  <h1 align="center">Enter your session's information</h1>
+  <h3 align="center">Enter your session's information <br /></h3>
   <input type="hidden" id="txtId">
   <div class="row">
     <form method="get" id="formValidate" class="col s12">
@@ -304,12 +299,11 @@ var clearTxt = function clearTxt() {
         </select>
         <label class="teal-text text-lighten-2">Supervisor's Licence Number</label>
       </div>
-      <div class="input-field col s12 m6 hiddendiv" id="divCar">
-   				<i class="material-icons prefix">directions_car</i>
-    			<select class="icons" id="selCar">
-   	 			</select>
-    			<label class="teal-text text-lighten-2">Choose your car</label>
-  		</div>
+      <div class="input-field col s12 m6 hiddendiv" id="divCar"> <i class="material-icons prefix">directions_car</i>
+        <select class="icons" id="selCar">
+        </select>
+        <label class="teal-text text-lighten-2">Choose your car</label>
+      </div>
       <div class="row" id="divRegNo">
         <div class="input-field col s12"> <i class="material-icons prefix">directions_car</i>
           <input id="txtRegNo" type="text" class="validate" required aria-required="true">
@@ -328,20 +322,6 @@ var clearTxt = function clearTxt() {
           <label for="txtStartTime" class="teal-text text-lighten-2">Start time</label>
         </div>
       </div>
-      <!-- <div class="row">
-				<div class="input-field col s12">
-			  		<i class="material-icons prefix">av_timer</i>
-				  <input id="txtFinishTime" type="text" class="timepicker">
-				  <label for="txtFinishTime" class="teal-text text-lighten-2">Finish time</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<img src="../images/icons8-png/icons8-au-volant-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtTime" type="text" class="validate">
-				  <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
-				</div>
-			  </div>-->
       <div class="row">
         <div class="input-field col s12"> <img src="../images/icons8-png/icons8-odomètre-50.png" class="prefix" style="width: 24px; height: 24px;">
           <input id="txtOdom" type="text" class="validate txtOdometer">
@@ -349,17 +329,8 @@ var clearTxt = function clearTxt() {
         </div>
       </div>
       <div class="row">
-      	<p class="msg"></p>
+        <p class="msg"></p>
       </div>
-      <!--<div class="row">
-        <div class="input-field col s12">
-          <p class="teal-text text-lighten-2">Signature</p>
-          <div id="signature"></div>
-          <p>
-            <button class="waves-effect waves-light btn" type="button" id="clearButton">Clear</button>
-          </p>
-        </div>
-      </div>-->
       <div class="input-field col s12">
         <div class="right">
           <button class="waves-effect waves-light btn" type="reset" id="resetButton">Reset</button>

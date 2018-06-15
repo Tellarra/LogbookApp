@@ -27,10 +27,6 @@
 <script src="../Plugins/API/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>
 <script src="../Plugins/API/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
 <script>
-//Cloud API
-//https:api.cloudinary.com/v1_1/logbook/file/upload;
-//var uploadCloud = $.cloudinary.config({ cloud_name: 'logbook', secure: true});
-//Create Database
 var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhoneNo TEXT);";
 var insertSQL = "INSERT INTO tblProfile (fldLicenceNo, fldName, fldBirth, fldPermitDate, fldPhone) VALUES (?, ?, ?, ?, ?);";
 var showSQL = "SELECT * FROM tblProfile;";
@@ -42,20 +38,6 @@ var dropTable = "DROP TABLE tblProfile";
 var db = null;
 $(document).ready(function() {
 	document.addEventListener("deviceready", onDeviceReady(), false);
-//Profile Picture
-	/*if($.fn.cloudinary_fileupload !== undefined) {
-    	$("input.cloudinary-fileupload[type=file]").cloudinary_fileupload( {
-			disableImageResize: false,
-			imageMaxWidth: 800,                   // 800 is an example value - no default
-			imageMaxHeight: 600,                  // 600 is an example value - no default
-			maxFileSize: 20000000,                // 20MB is an example value - no default
-			loadImageMaxFileSize: 20000000,       // default is 10MB
-			acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i
-		});
-  	}
-	var tag = $.cloudinary.imageTag("sample", { width: 400, crop: "pad"}).toHtml();
-	//tag.toHtml();
-	$("profilePicture").html(tag);*/
 //Hide button
 	$("#saveInfo").hide();
 //NavBar
@@ -91,18 +73,14 @@ var dob = new Date($("#txtBirthdate").val());
 var today = new Date();
 console.log(dob);
 var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
-//$('#age').html(age+' years old');
-console.log(age);
 	
 //Profile picture
  var readURL = function(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
-
             reader.onload = function (e) {
                 $('.profile-pic').attr('src', e.target.result);
             }
-    
             reader.readAsDataURL(input.files[0]);
         }
     }
@@ -127,8 +105,6 @@ var checkRecord = function() {
 	var dob = new Date(birthDate);
 	var today = new Date();
 	var age = Math.floor((today-birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-	//$('#age').html(age+' years old');
-	console.log(age);
 	
 	if(name == "") {
 		$("#errorMsg").html("<em>You must enter a your name.</em>");
@@ -163,7 +139,6 @@ var onDeviceReady = function() {
       alert("This device does NOT support databases");
     else {
       db = window.openDatabase("Log_Book", "1", "Log_Book", "1024");
-      console.log("Database opened");
       db.transaction(populateDB, onError);
     } // end else
   }
@@ -174,7 +149,6 @@ var onDeviceReady = function() {
 
 var populateDB = function(trans) {
   db.transaction(function(trans) {
-	 //trans.executeSql(createTableSQL,[]);
 	  trans.executeSql(selectOtherTable,[]);
 	  
 	  db.transaction(showRecords);
@@ -201,8 +175,6 @@ var showRecords = function() {
 			$("#txtPermitDate").val(row['fldPermitDate']);
 			$("#txtPhone").val(row['fldPhoneNo']);
         }
-        //$("#cardSup").append(str);
-        //console.log("Supervisor added to card");
       } // end else
 		M.updateTextFields();
     });
@@ -210,7 +182,6 @@ var showRecords = function() {
 };
 	
 var editRecord = function(trans) {
-	//var name = $("#txtName").val();
 	var birthDate = $("#txtBirthdate").val();
 	var licenceNo = $("#permitNo").val();
 	var permitDate = $("#txtPermitDate").val();
@@ -258,75 +229,63 @@ var clearTxt = function clearTxt() {
 
 <body>
 <nav>
-    <div class="nav-wrapper navbar">
-      <a href="#!" class="center brand-logo">Profile</a>
-      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
-      <ul class="left hide-on-med-and-down">
-        <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
-      </ul>
+  <div class="nav-wrapper navbar"> <a href="#!" class="center brand-logo">Profile</a> <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+    <ul class="left hide-on-med-and-down">
+      <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
+    </ul>
+  </div>
+</nav>
+<h1 align="center">Your profile</h1>
+<p class="center-block"> <img class="profile-pic" src="../images/empty-profile.png" />
+<div class="upload-button center-block">Upload Image</div>
+<input class="file-upload" type="file" accept="image/*"/>
+</p>
+<div class="col s12 m7 cards">
+  <div class="card horizontal">
+    <div class="card-stacked">
+      <div class="card-content"> <span class="card-title">You</span>
+        <div class="row">
+          <form class="col s12">
+            <div class="row">
+              <div class="input-field col s12">
+                <input disabled id="txtName" type="text" class="validate">
+                <p id="errorMsg"></p>
+                <label for="txtName"> Name</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12">
+                <input disabled id="txtBirthdate" type="text" class="datepicker">
+                <label for="txtBirthdate">Birthdate</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12">
+                <input disabled id="permitNo" type="number" class="validate" max="9" min="9">
+                <label for="permitNo">Licence Number</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12">
+                <input disabled id="txtPermitDate" type="text" class="datepicker">
+                <label for="txtPermitDate">Permit Date</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12">
+                <input disabled id="txtPhone" type="text" class="validate">
+                <label for="txtPhone">Phone Number</label>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-  </nav>
- <h1 align="center">Your profile</h1> 
- <p class="center-block">
-	<img class="profile-pic" src="../images/empty-profile.png" />
-		<div class="upload-button center-block">Upload Image</div>
-	<input class="file-upload" type="file" accept="image/*"/>
- </p>
- <!--<p class="center-block" id="profilePicture"></p>
- <input name="file" type="file" class="cloudinary-fileupload" 
- 	data-cloudinary-field="profilePicture" 
- 	data-form-data= "{ 'upload_preset': 'user_upload1',
- 	'callback': 'file:///F:/Cours/Semester2/mobileApp/assignement/logbookApp/LogbookApp/html/profile.html'}"/>
- <br />-->
- <div class="col s12 m7 cards">
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
-        <span class="card-title">You</span>
-			<div class="row">
-				<form class="col s12">
-						  <div class="row">
-								<div class="input-field col s12">
-							  		<input disabled id="txtName" type="text" class="validate">
-							  		<p id="errorMsg"></p>
-							  		<label for="txtName"> Name</label>
-								</div>
-						  </div>
-						  <div class="row">
-								<div class="input-field col s12">
-							  		<input disabled id="txtBirthdate" type="text" class="datepicker">
-							  		<label for="txtBirthdate">Birthdate</label>
-								</div>
-						  </div>
-						  <div class="row">
-								<div class="input-field col s12">
-							  		<input disabled id="permitNo" type="number" class="validate" max="9" min="9">
-							  		<label for="permitNo">Licence Number</label>
-								</div>
-						  </div>
-						  <div class="row">
-								<div class="input-field col s12">
-							  		<input disabled id="txtPermitDate" type="text" class="datepicker">
-							  		<label for="txtPermitDate">Permit Date</label>
-								</div>
-						  	</div>
-							<div class="row">
-							<div class="input-field col s12">
-				  				<input disabled id="txtPhone" type="text" class="validate">
-				  				<label for="txtPhone">Phone Number</label>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-		<div class="col s12">
-		<button class="btn waves-effect waves-light btnPadding right red accent-2" id="editProfile">Edit</button>
- 		<button class="btn waves-effect waves-light right" type="submit" name="action" id="saveInfo">Save
-    		<i class="material-icons right">send</i>
-  		</button>
-  		</div> 	 
-	</div>
+  </div>
+  <div class="col s12">
+    <button class="btn waves-effect waves-light btnPadding right red accent-2" id="editProfile">Edit</button>
+    <button class="btn waves-effect waves-light right" type="submit" name="action" id="saveInfo">Save <i class="material-icons right">send</i> </button>
+  </div>
+</div>
 </body>
 </html>

@@ -29,9 +29,6 @@ $(document).ready(function(){
 	//console.log(id);
 //Hide button
 	$("#editSessions").addClass("hiddendiv");
-	/*$("#saveInfo").hide();
-	$("#resetBtn").hide();
-	$("#clearSignature").hide();*/
 	
 //NavBar
     $('.sidenav').sidenav();
@@ -87,7 +84,7 @@ $(document).ready(function(){
 //Save Button
 	$("#saveInfo").on("click", function() {
 		insertRecord();
-		//window.location.href="../index.html";
+		window.history.back();
 	});
 });		
 	
@@ -98,6 +95,43 @@ function getUrlVars() {
 	});
 	return vars;
 }
+
+var checkRecord = function() {
+	var finishTime = $("#txtFinishTime").val();
+	var light = $("#txtLight option:selected").val();
+  	var conditions = $("#selConditions").val();
+  	var odometerFinish = $("#txtOdomAfter").val();
+	var odometerStart = $("#txtOdom").val();
+	var datapair = $("#signature").jSignature("getData", "svgbase64");
+	var today = new Date();
+	strCondition = conditions.toString();
+	console.log(conditions);
+	console.log(datapair);
+	
+	if(finishTime == "" || finishTime.substring(0,2) != today.getHours() || finishTime.substring(3,5) != today.getMinutes() ) {
+		$(".msg").html("<em>You must select the actual time.</em>");
+		$("#txtFinishTime").focus();
+		return false;
+	} else if(odometerFinish == "" || isNaN(odometerFinish) || parseInt(odometerFinish) <= parseInt(odometerStart)) {
+		$(".msg").html("<em>Your odometer must be greater than is was at the start of your lesson.</em>");
+		$(".txtOdomAfter").focus();
+		return false;
+	} else if(light == "Choose your option") {
+		$(".msg").html("<em>You must choose the light condition.</em>");
+		$("#txtLight").focus();
+		return false;
+	} else if(strCondition == "") {
+		$(".msg").html("<em>Your must choose the conditions of your driving lesson.</em>");
+		$("#selConditions").focus();
+		return false;
+	} else if(datapair <= 0) {
+		$(".msg").html("<em>Your supervisor must sign the session.</em>");
+		return false;
+	} else {
+		return true;
+	}
+}
+	
 	
 var onDeviceReady = function() {
   console.log("In deviceready");
@@ -208,7 +242,7 @@ var showRecords = function() {
 };
 	
 var insertRecord = function() {
-  console.log("In insertRecord");
+	if(checkRecord()) {
 	    db.transaction(function(trans) {
 			var newDrivingTime = 0;
 			var newFinishTime = $("#txtFinishTime").val();
@@ -221,45 +255,31 @@ var insertRecord = function() {
 			
   			newConditions = newConditions.toString();
 			trans.executeSql("SELECT * FROM tblSession;", [], function(trans, result) {
-  
-				console.log( "New session 1: " + newFinishTime, newOdometerFinish, newLight, newConditions, newParking, xml);
-				console.log("in driving time");
 				var noOfRecs = result.rows.length;
 
 				for(var i = 0; i < noOfRecs; i++) {
 					var row = result.rows.item(i);
-						if(row['fldLogNo'] == id) {
+					if(row['fldLogNo'] == id) {
 						var startTime = row['fldStartTime'];
-						console.log(startTime);
-
 						var newStartTime = new Date().setHours(startTime.substring(0, 2), startTime.substring(3, 5), 0, 0);
 						var finishTime = new Date().setHours(newFinishTime.substring(0, 2), newFinishTime.substring(3, 5), 0, 0);
 
 						var newDrivingTime = Math.floor((finishTime - newStartTime) / 60000);
-							console.log(newDrivingTime);
 					}
 					
 					if(row['fldSignature'] == null) {
 						var i = new Image();
 						i.src = "data:" + datapair[0] + "," + datapair[1];
-						console.log(i);
 						var xml = (new XMLSerializer).serializeToString(i);
 						trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions, xml], onError);
 					} else {
 						trans.executeSql(updateRecordSQL2, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions], onError);
 					}
 				}
-				
-				//trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions, xml], onError);
-				//console.log(trans.executeSql(updateRecordSQL, [newFinishTime, newDrivingTime, newOdometerFinish,newParking, newLight, newConditions ]));
 			});
 			console.log("added to table");
     	});
-	//location.reload();
-	
-	//console.log(newSupervisorName, newLicenceNo, newCarRego,newDate, newStartTime, newOdometerStart);
-	//$(".msg").html(newName + " " + newLicenceNo + " " + newPhoneNo + " added");
-    //clearTxt();
+	}
     return true;
 }
 	
@@ -295,178 +315,144 @@ var clearTxt = function clearTxt() {
 
 <body>
 <div class="pages" id="page" data-theme="a" >
-<nav>
-    <div class="nav-wrapper">
-      <a href="#!" class="center brand-logo">Sessions</a>
-      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+  <nav>
+    <div class="nav-wrapper"> <a href="#!" class="center brand-logo">Sessions</a> <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
       <ul class="left hide-on-med-and-down">
         <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
       </ul>
     </div>
   </nav>
- <h4 align="center">Your session information <br /></h4>
-<div class="row">
-	<form class="col s12">
-	  	  <!--<div class="input-field col s12 m6 ">
-   				<i class="material-icons prefix">people</i>
-    			<select class="icons" disabled>
-      				<option value="" selected>Alan Parish</option>
-   	 			</select>
-    			<label class="teal-text text-lighten-2">Supervisor's name</label>
-  		  </div>-->
-  		  <div class="row">
-				<div class="input-field col s12">
-			  		<i class="material-icons prefix">people</i>
-				  <input id="txtSupervisor" type="text" disabled class="validate">
-				  <label for="txtSupervisor" class="teal-text text-lighten-2">Supervisor's Name</label>
-				</div>
-			</div>
-		  <div class="row">
-				<div class="input-field col s12">
-			 	  <i class="material-icons prefix">card_membership</i>
-				  <input id="txtLicenseNo" disabled type="text" class="validate">
-				  <label for="txtLicenseNo" class="teal-text text-lighten-2">Supervisor's License Number</label>
-				  <span class="helper-text" data-error="Your license Number must contain 9 digits" data-success="Correct"></span>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<i class="material-icons prefix">directions_car</i>
-				  <input id="txtRegNo" type="text" disabled class="validate">
-				  <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
-				</div>
-			</div>
-			<!--<div class="input-field col s12 m6 hiddendiv">
-   				<i class="material-icons prefix">directions_car</i>
-    			<select class="icons">
-      				<option value="" disabled selected>James' Car</option>
-      				<option value="Day">Day</option>
-   	 			</select>
-    			<label class="teal-text text-lighten-2">Choose your car</label>
-  			</div>-->
-			<div class="row">
-				<div class="input-field col s12">
-			  		<i class="material-icons prefix">event</i>
-				  <input id="txtDate" type="text" disabled class="datepicker">
-				  <label for="txtDate" class="teal-text text-lighten-2">Date</label>
-				</div>
-			</div>
-			  <div class="row">
-				<div class="input-field col s12">
-			 		<i class="material-icons prefix">access_time</i>
-				  <input id="txtStartTime" type="text" disabled class="timepicker">
-				  <label for="txtStartTime" class="teal-text text-lighten-2">Start time</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<i class="material-icons prefix">av_timer</i>
-				  <input id="txtFinishTime" type="text" class="timepicker">
-				  <label for="txtFinishTime" class="teal-text text-lighten-2">Finish time</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<img src="../images/icons8-png/icons8-au-volant-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtTime" type="text" class="validate">
-				  <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<img src="../images/icons8-png/icons8-odomètre-50.png" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdom" type="text" disabled class="validate">
-				  <label for="txtOdom" class="teal-text text-lighten-2">Odometer Before Driving</label>
-				</div>
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12">
-			  		<img src="../images/icons8-png/icons8-odomètre-filled-50.png" value="" class="prefix" style="width: 24px; height: 24px;">
-				  <input id="txtOdomAfter" type="text" class="validate">
-				  <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
-				</div>
-			  </div>
-			  <div class="input-field col s12 m6" id="divLight">
-   				<i class="material-icons prefix">wb_sunny</i>
-    			<select id="txtLight" class="icons">
-      				<option value="Choose your option" selected>Choose your option</option>
-      				<option value="Day">Day</option>
-      				<option value="Night">Night</option>
-      				<option value="Day and Night">Day and Night</option>
-   	 			</select>
-    		<label class="teal-text text-lighten-2">Light</label>
-  			</div>
-  			<div class="input-field col s12 m6" hidden="hidden" id="divLight2">
-  				<i class="material-icons prefix">wb_sunny</i>
-  				<select id="txtLight2" class="icons">
-   				</select>
-   				<label for="txtLight2" class="teal-text text-lighten-2">Light</label>
-  			</div>
-  			<div class="input-field col s12" id="divCondition">
-  			<img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-				<select id="selConditions" multiple="multiple">
-				  <option value="" selected>Choose your options</option>
-				  <optgroup label="Traffic">
-					  <option value="Light">Light</option>
-					  <option value="Moderate">Moderate</option>
-					  <option value="Heavy">Heavy</option>
-				  </optgroup>
-				  <optgroup label="Weather">
-					  <option value="Dry">Dry</option>
-					  <option value="Wet">Wet</option>
-				  </optgroup>
-				  <optgroup label="Road">
-					  <option value="Local Street">Local Street</option>
-					  <option value="Main Road">Main Road</option>
-					  <option value="Inner City">Inner City</option>
-					  <option value="Freeway">Freeway</option>
-					  <option value="Rural Hwy">Rural Hwy</option>
-					  <option value="Rural Other">Rural Other</option>
-					  <option value="Gravel">Gravel</option>
-				  </optgroup>
-				</select>
-				<label class="teal-text text-lighten-2">Conditions</label>
-			  </div>
-			  <div class="input-field col s12" id="divCondition2" hidden="hidden">
-			  </div>
-			  <div class="row">
-				<div class="input-field col s12" id="divParking">
-        			<p>
-						<img src="../images/icons8-png/icons8-parking-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
-						<label for="radParkingYes" class="teal-text text-lighten-2">Parking</label>
-						<label> 
-							<input id="radParkingYes" name="radParking" type="radio" value="Yes" class="with-gap" checked />
-							<span>Yes</span>
-						</label>
-						<label> 
-							<input id="radParkingNo" name="radParking" type="radio" value="No" class="with-gap"/>
-							<span>No</span>
-						</label>
-					</p>
-				</div>
-			  </div>
-			  <div class="row">
-			  	<div class="input-field col s12" id="divParking2">
-			  	</div>
-			  </div>
-			  <div class="row">
-				  <div class="input-field col s12">
-					<p class="teal-text text-lighten-2">Signature</p>
-					<div id="signature"></div>
-				  </div>
-			  </div>
-			  </form>
-			  <div class="input-field col s12">
-				  <div class="right">
-					<button class="waves-effect waves-light btn" type="reset" id="resetBtn">Cancel</button>
-					<button class="btn waves-effect waves-light right red accent-2" hidden id="editSessions">Edit</button>
-					<button class="btn waves-effect waves-light red accent-4" type="submit" name="action" id="saveInfo">Submit
-						<i class="material-icons right">send</i>
-					</button>
-				  </div>
-  			 </div>
-		</div>
-	</div>
+  <h3 align="center">Your session information <br />
+  </h3>
+  <div class="row">
+    <form class="col s12">
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">people</i>
+          <input id="txtSupervisor" type="text" disabled class="validate">
+          <label for="txtSupervisor" class="teal-text text-lighten-2">Supervisor's Name</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">card_membership</i>
+          <input id="txtLicenseNo" disabled type="text" class="validate">
+          <label for="txtLicenseNo" class="teal-text text-lighten-2">Supervisor's License Number</label>
+          <span class="helper-text" data-error="Your license Number must contain 9 digits" data-success="Correct"></span> </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">directions_car</i>
+          <input id="txtRegNo" type="text" disabled class="validate">
+          <label for="txtRegNo" class="teal-text text-lighten-2">Car Registration Number</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">event</i>
+          <input id="txtDate" type="text" disabled class="datepicker">
+          <label for="txtDate" class="teal-text text-lighten-2">Date</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">access_time</i>
+          <input id="txtStartTime" type="text" disabled class="timepicker">
+          <label for="txtStartTime" class="teal-text text-lighten-2">Start time</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <i class="material-icons prefix">av_timer</i>
+          <input id="txtFinishTime" type="text" class="timepicker">
+          <label for="txtFinishTime" class="teal-text text-lighten-2">Finish time</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <img src="../images/icons8-png/icons8-au-volant-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
+          <input id="txtTime" type="text" class="validate">
+          <label for="txtTime" class="teal-text text-lighten-2">Driving Time</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <img src="../images/icons8-png/icons8-odomètre-50.png" class="prefix" style="width: 24px; height: 24px;">
+          <input id="txtOdom" type="text" disabled class="validate">
+          <label for="txtOdom" class="teal-text text-lighten-2">Odometer Before Driving</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12"> <img src="../images/icons8-png/icons8-odomètre-filled-50.png" value="" class="prefix" style="width: 24px; height: 24px;">
+          <input id="txtOdomAfter" type="text" class="validate">
+          <label for="txtOdomAfter" class="teal-text text-lighten-2">Odometer After Driving</label>
+        </div>
+      </div>
+      <div class="input-field col s12 m6" id="divLight"> <i class="material-icons prefix">wb_sunny</i>
+        <select id="txtLight" class="icons">
+          <option value="Choose your option" selected>Choose your option</option>
+          <option value="Day">Day</option>
+          <option value="Night">Night</option>
+          <option value="Day and Night">Day and Night</option>
+        </select>
+        <label class="teal-text text-lighten-2">Light</label>
+      </div>
+      <div class="input-field col s12 m6" hidden="hidden" id="divLight2"> <i class="material-icons prefix">wb_sunny</i>
+        <select id="txtLight2" class="icons">
+        </select>
+        <label for="txtLight2" class="teal-text text-lighten-2">Light</label>
+      </div>
+      <div class="input-field col s12" id="divCondition"> <img src="../images/icons8-png/icons8-route-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
+        <select id="selConditions" multiple="multiple">
+          <option value="" selected>Choose your options</option>
+          <optgroup label="Traffic">
+          <option value="Light">Light</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Heavy">Heavy</option>
+          </optgroup>
+          <optgroup label="Weather">
+          <option value="Dry">Dry</option>
+          <option value="Wet">Wet</option>
+          </optgroup>
+          <optgroup label="Road">
+          <option value="Local Street">Local Street</option>
+          <option value="Main Road">Main Road</option>
+          <option value="Inner City">Inner City</option>
+          <option value="Freeway">Freeway</option>
+          <option value="Rural Hwy">Rural Hwy</option>
+          <option value="Rural Other">Rural Other</option>
+          <option value="Gravel">Gravel</option>
+          </optgroup>
+        </select>
+        <label class="teal-text text-lighten-2">Conditions</label>
+      </div>
+      <div class="input-field col s12" id="divCondition2" hidden="hidden"> </div>
+      <div class="row">
+        <div class="input-field col s12" id="divParking">
+          <p> <img src="../images/icons8-png/icons8-parking-filled-50.png" class="prefix" style="width: 24px; height: 24px;">
+            <label for="radParkingYes" class="teal-text text-lighten-2">Parking</label>
+            <label>
+              <input id="radParkingYes" name="radParking" type="radio" value="Yes" class="with-gap" checked />
+              <span>Yes</span> </label>
+            <label>
+              <input id="radParkingNo" name="radParking" type="radio" value="No" class="with-gap"/>
+              <span>No</span> </label>
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12" id="divParking2"> </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <p class="teal-text text-lighten-2">Signature</p>
+          <div id="signature"></div>
+        </div>
+      </div>
+      <div class="row">
+        <p class="msg"></p>
+      </div>
+    </form>
+    <div class="input-field col s12">
+      <div class="right">
+        <button class="waves-effect waves-light btn" type="reset" id="resetBtn">Cancel</button>
+        <button class="btn waves-effect waves-light right red accent-2" hidden id="editSessions">Edit</button>
+        <button class="btn waves-effect waves-light red accent-4" type="submit" name="action" id="saveInfo">Submit <i class="material-icons right">send</i> </button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
-

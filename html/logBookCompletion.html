@@ -40,8 +40,6 @@ $(document).ready(function() {
 	});
 	//Select Button
 	$('select').formSelect();
-	//Put label on top of the text input
-	//M.updateTextFields();
 	//Signature
 	$("#learnerSignature").jSignature();
 	$("#supervisorSignature").jSignature();
@@ -68,20 +66,6 @@ $(document).ready(function() {
 		$("#supervisorSignature .btn").attr("hidden", true);
 		var xml = (new XMLSerializer).serializeToString(learnerS);
 		var xml = (new XMLSerializer).serializeToString(supervisorS);
-		
-		
-		//$(learnerS).appendTo($("#divSignature1"));
-		//$(supervisorS).appendTo($("#divSignature2"));
-		/*if($.fn.cloudinary_fileupload !== undefined) {
-			$(learnerS).cloudinary_fileupload( {
-				disableImageResize: false,
-				imageMaxWidth: 800,                   // 800 is an example value - no default
-    			imageMaxHeight: 600,                  // 600 is an example value - no default
-    			maxFileSize: 20000000,                // 20MB is an example value - no default
-    			loadImageMaxFileSize: 20000000,       // default is 10MB
-    			//acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i
-			});
-		}*/
 	});
 });
 	
@@ -104,25 +88,16 @@ var onDeviceReady = function() {
 var populateDB = function(trans) {
   db.transaction(function(trans) {
 	  trans.executeSql(selectOtherTable,[]);
-
 	  db.transaction(showRecords);
-	 
-	 //trans.executeSql(dropTable,[]);
-	  console.log("Table created");
   }); // end of transaction
 };
 	
 var showRecords = function() {
-  console.log("In show records");
   db.transaction(function(trans) {
-	  //console.log(selectAllRecordSupervisor);
 	  trans.executeSql( "SELECT * FROM tblSupervisor;",[], function(trans, result) {
-      var str = "";
-	console.log(result);
-      	
-      if( result.rows.length == 0 ) {
-		  $("#selName").addClass("hiddendiv");
-		  $("#divName").removeClass("hiddendiv");
+      	if( result.rows.length == 0 ) {
+			$("#selName").addClass("hiddendiv");
+		  	$("#divName").removeClass("hiddendiv");
       } else {
 		$("#divName").addClass("hiddendiv");
 		$("#selName").removeClass("hiddendiv");

@@ -36,8 +36,6 @@ $(document).ready(function() {
 	$('.tooltipped').tooltip();
 	//modal
 	$('.modal').modal();
-  	
-	//$("#modal2").hide();
 
 	$("#addBtn").on("click", function() {
 		$("#txtName").val("");
@@ -46,14 +44,8 @@ $(document).ready(function() {
 	});
 	
   	$("#saveSupervisor").on('click', function() {
-    	console.log("About to add a task");
     	insertRecord();
   });
-  
-  	/*$("#editSupervisor").on('click', function() {
-		console.log("About to edit a task");
-		saveRecord();
-	});*/
 
 	$("#deleteAll").on('click', function() {
 		deleteALLRecords();
@@ -61,14 +53,12 @@ $(document).ready(function() {
 });
 
 var onDeviceReady = function() {
-  console.log("In deviceready");
 
   try {
     if( !window.openDatabase )
       alert("This device does NOT support databases");
     else {
       db = window.openDatabase("Log_Book", "1", "Log_Book", "1024");
-      console.log("Database opened");
       db.transaction(populateDB, onError, showRecords);
     } // end else
   }
@@ -80,8 +70,6 @@ var onDeviceReady = function() {
 var populateDB = function(trans) {
   db.transaction(function(trans) {
 	 trans.executeSql(createTableSQL,[]);
-	 //trans.executeSql(dropTable,[]);
-	  console.log("Table created");
   }); // end of transaction
 };
 
@@ -93,7 +81,6 @@ var showRecords = function() {
 
       if( result.rows.length == 0 ) {
         $("#licenceNoCard").html("<em>There are no records to display</em>");
-		//str += "<div class='col s12 m7 cards' >";
 		str += "<div class='card horizontal'>";
 		str += "<div class='card-stacked'></div></div>";
         str = "<div value='0' style='text-align:center'><strong>There are no records to display</strong</div></div>";
@@ -114,11 +101,7 @@ var showRecords = function() {
 		  str += "<i class='material-icons left'>event</i><strong>Licence Number:</strong> " + row['fldLicenceNo'] + "</div>";
 		  str += "<div class='card_icon'>";
 	      str += "<i class='material-icons left'>people</i><strong>Phone:</strong> " + row['fldPhoneNo'] + "</div>";
-		  str += "<button data-target='modal2' onClick='editRecord(\""+ row['fldName'] + "\"," + row['fldLicenceNo'] + ",\"" + row['fldPhoneNo'] +"\");'";
-		  str += "class='btn modal-trigger waves-effect waves-light red accent-2'>Edit</button>";
 		  str +="<button onClick='deleteRecord(\"" + row['fldLicenceNo'] + "\");' class='btn waves-effect waves-light right red'>Delete</button></div></div></div></div>";
-			
-          //$("#licenceNoCard").append(str);
         }
         $("#cardSup").append(str);
         console.log("Supervisor added to card");
@@ -177,32 +160,6 @@ var editRecord = function(name,licenceNo,phoneNo) {
 	});
 	M.updateTextFields();
 }
-							
-var saveRecord = function() {
-	
-	var editName = $("#editName").val();
-	var editLicenceNo = $("#editLicenceNo").val();
-	var editPhoneNo = $("#editPhoneNo").val();
-	
-	/*if (editName == "" || !(isNaN(editName))) {
-		$(".msg").html("<em>You must enter your name.</em>");
-		$("#editName").focus();
-		return false;
-	} *//*if(editPhoneNo.length != 10 || isNaN(editPhoneNo)) {
-		$(".msg").html("<em>You must enter a valid phone number.</em>");
-		$("#editPhoneNo").focus();
-		return false;
-	} else {*/
-		console.log(editName + " " + editLicenceNo + " " + editPhoneNo);
-		db.transaction(function(trans) {
-			trans.executeSql(updateRecordSQL, [editName, editPhoneNo, editLicenceNo], onError);
-			//console.log(trans.executeSql(updateRecordSQL, [editName, editPhoneNo, editLicenceNo]));
-		});
-	//}
-	
-		//location.reload();
-	return true;
-}
 
 var deleteRecord = function(licenceNo) {
 	var q = confirm("Do you wish to delete this record");
@@ -211,13 +168,9 @@ var deleteRecord = function(licenceNo) {
 		db.transaction(function(trans) {
 			trans.executeSql(deleteSQL, [licenceNo], onError);
 		});
-		//$(".msg").html("Record deleted");
 		location.reload();
-		//clearTxt();
 		return true;
 	} else {
-		//$(".msg").html("Record NOT deleted");
-		//clearTxt();
 		return false;
 	}
 }
@@ -229,13 +182,9 @@ var deleteALLRecords = function() {
 		db.transaction(function(trans) {
 			trans.executeSql(deleteAllSQL, [], showRecords, onError);
 		});
-
-		//$(".msg").html("All records deleted");
-		//clearTxt();
 		return true;
 	}
-	else {	//$(".msg").html("All records NOT deleted");
-		//clearTxt();
+	else {
 		return false;
 	}
 }
@@ -263,7 +212,6 @@ var onError = function(err) {
 		default	:	str += "Error: " + err.code + " " + err.message;
 					break;
 	}
-	console.log(str);
 }
 
 var clearTxt = function clearTxt() {
@@ -278,98 +226,89 @@ var clearTxt = function clearTxt() {
 
 <body>
 <nav>
-    <div class="nav-wrapper navbar">
-      <a href="#!" class="center brand-logo">Supervisors</a>
-      <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
-      <ul class="left hide-on-med-and-down">
-        <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
-      </ul>
+  <div class="nav-wrapper navbar"> <a href="#!" class="center brand-logo">Supervisors</a> <a href="../index.html" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons left">arrow_back</i></a>
+    <ul class="left hide-on-med-and-down">
+      <li><a href="../index.html" data-target="mobile-demo"><i class="material-icons left">arrow_back</i></a></li>
+    </ul>
+  </div>
+</nav>
+<h4 align="center">Your Supervisor's information<br /></h4>
+<div class="col s12 m7 cards"> 
+  <!-- Modal1 Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content"> <span class="card-title">Supervisor</span>
+      <div class="row">
+        <form class="col s12" id="addSupervisor" method="get">
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="txtName" type="text" class="validate" >
+              <label for="txtName">Name</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="licenceNo" type="text" class="validate">
+              <label for="licenceNo">Licence Number</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="phoneNo" type="text" class="validate">
+              <label for="phoneNo">Phone Number</label>
+            </div>
+          </div>
+          <div class="row">
+            <p class="msg"></p>
+          </div>
+        </form>
+      </div>
     </div>
-  </nav>
- <h2 align="center">Your Supervisor's information</h2> 
-<div class="col s12 m7 cards">
-<!-- Modal1 Structure -->
-<div id="modal1" class="modal">
-	<div class="modal-content">
-			<span class="card-title">Supervisor</span>
-				<div class="row">
-					<form class="col s12" id="addSupervisor" method="get">
-						  <div class="row">
-								<div class="input-field col s12">
-							  		<input id="txtName" type="text" class="validate" >
-							  		<label for="txtName">Name</label>
-								</div>
-						  	</div>
-							<div class="row">
-								<div class="input-field col s12">
-								  <input id="licenceNo" type="text" class="validate">
-								  <label for="licenceNo">Licence Number</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="phoneNo" type="text" class="validate">
-									<label for="phoneNo">Phone Number</label>
-								</div>
-							</div>
-							<div class="row">
-								<p class="msg"></p>
-							</div>
-						</form>
-					</div>
-				</div>
-				<div class="col s12">
-					<button class="waves-effect waves-light btn modalBtn" type="reset" id="resetButton">Cancel</button>
-					<button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="saveSupervisor">Save
-						<i class="material-icons right">send</i>
-					</button>
-  				</div> 
-			</div>
-		</div>
-		
+    <div class="col s12">
+      <button class="waves-effect waves-light btn modalBtn" type="reset" id="resetButton">Cancel</button>
+      <button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="saveSupervisor">Save <i class="material-icons right">send</i> </button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Edit -->
 <div id="modal2" class="modal">
-	<div class="modal-content">
-			<span class="card-title">Supervisor</span>
-				<div class="row">
-					<form class="col s12" id="modalSupervisor" method="get">
-						  <div class="row">
-								<div class="input-field col s12">
-							  		<input id="editName" type="text" class="validate" >
-							  		<label for="editName">Name</label>
-								</div>
-						  	</div>
-							<div class="row">
-								<div class="input-field col s12">
-								  <input id="editLicenceNo" type="text" class="validate">
-								  <label for="editLicenceNo">Licence Number</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="editPhoneNo" type="text" class="validate">
-									<label for="editPhoneNo">Phone Number</label>
-							</div>
-						</div>
-						<div class="row">
-							<p class="msg"></p>
-						</div>
-					</form>
-				</div>
-			</div>
-		<div class="col s12">
-		<button class="waves-effect waves-light btn modalBtn" type="reset" id="editResetButton">Cancel</button>
-		<button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="editSupervisor">Save
-			<i class="material-icons right">send</i>
-		</button>
-  	</div> 
+  <div class="modal-content"> <span class="card-title">Supervisor</span>
+    <div class="row">
+      <form class="col s12" id="modalSupervisor" method="get">
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="editName" type="text" class="validate" >
+            <label for="editName">Name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="editLicenceNo" type="text" class="validate">
+            <label for="editLicenceNo">Licence Number</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="editPhoneNo" type="text" class="validate">
+            <label for="editPhoneNo">Phone Number</label>
+          </div>
+        </div>
+        <div class="row">
+          <p class="msg"></p>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col s12">
+    <button class="waves-effect waves-light btn modalBtn" type="reset" id="editResetButton">Cancel</button>
+    <button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="editSupervisor">Save <i class="material-icons right">send</i> </button>
+  </div>
 </div>
 <!--Cards -->
-	<div id="cardSup">
-	</div>
-	<div class="col s12 m7 cards">
-	   	<button data-target="modal1" id="addBtn" class="btn modal-trigger right">Add</button>
-	   	<button data-target="modal1" class="btn left red" id="deleteAll">Delete All supervisors</button>
-	</div>	
+<div id="cardSup"> </div>
+<div class="col s12 m7 cards">
+  <button data-target="modal1" id="addBtn" class="btn modal-trigger right">Add</button>
+  <button data-target="modal1" class="btn left red" id="deleteAll">Delete All supervisors</button>
+</div>
 </body>
 </html>

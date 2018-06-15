@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -15,7 +15,6 @@
 <!--Gauge-->
 <script src="Plugins/Creating-Animated-Gauges-Using-jQuery-Raphael-js-kumaGauge/Creating-Animated-Gauges-Using-jQuery-Raphael-js-kumaGauge/demo/js/vendor/raphael-min.js"></script>
 <script src="Plugins/Creating-Animated-Gauges-Using-jQuery-Raphael-js-kumaGauge/Creating-Animated-Gauges-Using-jQuery-Raphael-js-kumaGauge/kuma-gauge.jquery.js"></script>
-
 <script>
 //Select values from other tables
 var createTableSQL = "CREATE TABLE IF NOT EXISTS tblProfile (fldLicenceNo TEXT PRIMARY KEY, fldName TEXT PRMARY KEY, fldBirth DATE, fldPermitDate DATE, fldPhoneNo TEXT, fldMinutesDone TEXT NULL);";
@@ -97,8 +96,7 @@ var checkRecord = function() {
 	var dob = new Date(birthDate);
 	var today = new Date();
 	var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
-	//$('#age').html(age+' years old');
-	console.log(age);
+
 	var permit = new Date(permitDate);
 	var permitHold = Math.floor((today-permit) / (365.25 * 24 * 60 * 60 * 1000));
 	console.log(permitHold);
@@ -385,13 +383,10 @@ var clearTxt = function clearTxt() {
 }
 </script>
 </head>
-<body> 
-
+<body>
 <div class="pages" id="page" data-theme="a" >
   <nav class="navbar">
-    <div class="nav-wrapper">
-      <a class="brand-logo txtMargin">Home</a>
-      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    <div class="nav-wrapper"> <a class="brand-logo txtMargin">Home</a> <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
         <li><a href="html/profile.html">Profile</a></li>
         <li><a href="html/drivingLog.html">Log Book</a></li>
@@ -399,110 +394,101 @@ var clearTxt = function clearTxt() {
       </ul>
     </div>
   </nav>
- <ul class="sidenav" id="mobile-demo">
-	<li><a href="html/profile.html">Profile</a></li>
+  <ul class="sidenav" id="mobile-demo">
+    <li><a href="html/profile.html">Profile</a></li>
     <li><a href="html/drivingLog.html">Log Book</a></li>
     <li><a href="html/supervisor.html">Supervisors</a></li>
- </ul>
-<!--Gauge -->
-<h5 class="center">Progression</h5>
-<div class="js-gauge demo gauge center"></div>
-<hr class="style13">
-
-<!-- Modal1 Structure -->
-<div id="modal1" class="modal">
-	<div class="modal-content">
-			<span class="card-title">Learner Profile</span>
-				<div class="row">
-					<form class="col s12" id="addSupervisor" method="get">
-					  <div class="row">
-						<div class="input-field col s12" id="divParking">
-        					<p> I have already started my 120 hours practice:<br /><br />
-							<label> 
-								<input id="radHoursY" name="radHours" type="radio" value="Yes" class="with-gap"  />
-								<span>Yes</span>
-							</label>
-							<label> 
-								<input id="radHoursN" name="radHours" type="radio" value="No" class="with-gap" checked/>
-								<span>No</span>
-							</label>
-							</p>
-						</div>
-			  		  	</div>
-			  		  	<div class="row">
-							<div class="input-field col s12" id="divHours">
-							  	<input id="txtHours" type="text">
-							  	<label for="txtHours">Hours Done (in minutes):</label>
-							</div>
-						</div>
-						<div class="row">
-								<div class="input-field col s12">
-							  		<input id="txtName" type="text">
-							  		<label for="txtName">Name</label>
-								</div>
-						  	</div>
-						  	<div class="row">
-								<div class="input-field col s12">
-									<input id="birthDate" type="text" class="datepicker">
-									<label for="birthDate">Birthdate</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-								  <input id="licenceNo" type="text">
-								  <label for="licenceNo">Licence Number</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="permitDate" type="text" class="datepicker">
-									<label for="permitDate">Permit Date</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="phoneNo" type="text">
-									<label for="phoneNo">Phone Number</label>
-								</div>
-							</div>
-							<div class="row">
-								<p class="msg"></p>
-							</div>
-						</form>
-					</div>
-				</div>
-				<div class="col s12">
-					<button class="waves-effect waves-light btn modalBtn" type="reset" id="resetButton">Cancel</button>
-					<button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="saveProfile">Save
-						<i class="material-icons right">send</i>
-					</button>
-  				</div> 
-			</div>
-		</div>
+  </ul>
+  <!--Gauge -->
+  <h5 class="center">Progression</h5>
+  <div class="js-gauge demo gauge center"></div>
+  <hr class="style13">
+  
+  <!-- Modal1 Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content"> <span class="card-title">Learner Profile</span>
+      <div class="row">
+        <form class="col s12" id="addSupervisor" method="get">
+          <div class="row">
+            <div class="input-field col s12" id="divParking">
+              <p> I have already started my 120 hours practice:<br />
+                <br />
+                <label>
+                  <input id="radHoursY" name="radHours" type="radio" value="Yes" class="with-gap"  />
+                  <span>Yes</span> </label>
+                <label>
+                  <input id="radHoursN" name="radHours" type="radio" value="No" class="with-gap" checked/>
+                  <span>No</span> </label>
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12" id="divHours">
+              <input id="txtHours" type="text">
+              <label for="txtHours">Hours Done (in minutes):</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="txtName" type="text">
+              <label for="txtName">Name</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="birthDate" type="text" class="datepicker">
+              <label for="birthDate">Birthdate</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="licenceNo" type="text">
+              <label for="licenceNo">Licence Number</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="permitDate" type="text" class="datepicker">
+              <label for="permitDate">Permit Date</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="phoneNo" type="text">
+              <label for="phoneNo">Phone Number</label>
+            </div>
+          </div>
+          <div class="row">
+            <p class="msg"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col s12">
+      <button class="waves-effect waves-light btn modalBtn" type="reset" id="resetButton">Cancel</button>
+      <button class="btn waves-effect waves-light modalBtn right red accent-2" type="submit" name="action"  id="saveProfile">Save <i class="material-icons right">send</i> </button>
+    </div>
+  </div>
+</div>
 <!-- Finish Modal -->
 <div id="modal2" class="modal">
-	<div class="modal-content">
-    	<h4>Congratulation!</h4>
-      		<p>You have completed all your 120 hours!<br />You must now add your signature to the Logbook Completion document.</p></div>
-    	<div class="modal-footer">
-      	<a href="html/logBookCompletion.html" class="modal-close waves-effect waves-green btn-flat">Complete</a>
-     </div>
+  <div class="modal-content">
+    <h4>Congratulation!</h4>
+    <p>You have completed all your 120 hours!<br />
+      You must now add your signature to the Logbook Completion document.</p>
+  </div>
+  <div class="modal-footer"> <a href="html/logBookCompletion.html" class="modal-close waves-effect waves-green btn-flat">Complete</a> </div>
 </div>
 <!--Cards-->
-<div id="cardSession">
-	
+<div id="cardSession"> </div>
+<!--<div class="col s12 m7 cards">-->
+<div class="fixed-action-btn"> <a class="btn-floating btn-large red marginButton"> <i class=" large material-icons">mode_edit</i> </a>
+  <ul>
+    <li><a class="btn-floating red btn tooltipped" data-position="left" data-tooltip="Delete All Record" id="deleteRecords"><i class="material-icons">delete</i></a></li>
+    <!--<li><a class="btn-floating green btn tooltipped" data-position="left" data-tooltip="Filter"><i class="material-icons">filter_list</i></a></li>-->
+    <li><a class="btn-floating blue btn tooltipped" data-position="left" data-tooltip="Add" href="html/drivingLog.html"><i class="material-icons">add</i></a></li>
+  </ul>
 </div>
-<!--	<div class="col s12 m7 cards">-->
-	<div class="fixed-action-btn">
-	  <a class="btn-floating btn-large red marginButton">
-		<i class=" large material-icons">mode_edit</i>
-	  </a>
-	  <ul>
-	  	<li><a class="btn-floating red btn tooltipped" data-position="left" data-tooltip="Delete All Record" id="deleteRecords"><i class="material-icons">delete</i></a></li>
-		<li><a class="btn-floating green btn tooltipped" data-position="left" data-tooltip="Filter"><i class="material-icons">filter_list</i></a></li>
-		<li><a class="btn-floating blue btn tooltipped" data-position="left" data-tooltip="Add" href="html/drivingLog.html"><i class="material-icons">add</i></a></li>
-	  </ul>
-	</div>	
 <!--</div>-->
 </body>
 </html>
